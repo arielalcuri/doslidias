@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
@@ -21,6 +21,16 @@ function App() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        if (settings.heroImages && settings.heroImages.length > 1) {
+            const timer = setInterval(() => {
+                setCurrentImageIndex(prev => (prev + 1) % settings.heroImages.length);
+            }, 5000);
+            return () => clearInterval(timer);
+        }
+    }, [settings.heroImages]);
 
     const isAdminPage = window.location.pathname === '/admin';
     if (isAdminPage) return <AdminPanel />;
@@ -86,10 +96,35 @@ function App() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1 }}
-                        className="hidden md:block"
+                        className="hidden md:block relative h-[500px]"
                     >
-                        <div className="hero-img-container shadow-2xl">
-                            <img src={settings.heroImage} alt="Main Art" />
+                        <div className="hero-img-container shadow-2xl relative w-full h-full overflow-hidden rounded-[40px]">
+                            <AnimatePresence mode="wait">
+                                <motion.img
+                                    key={currentImageIndex}
+                                    src={settings.heroImages[currentImageIndex]}
+                                    alt="Main Art"
+                                    initial={{ opacity: 0, x: 50 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -50 }}
+                                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            </AnimatePresence>
+
+                            {/* Slide Indicators */}
+                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+                                {settings.heroImages.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${currentImageIndex === idx
+                                                ? 'bg-white w-8 shadow-lg'
+                                                : 'bg-white/40 hover:bg-white/60'
+                                            }`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </motion.div>
                 </div>

@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 interface Settings {
     heroTitle: string;
     heroSubtitle: string;
-    heroImage: string;
+    heroImages: string[];
     whatsapp: string;
     instagram: string;
     storeSubtitle: string;
@@ -32,7 +32,11 @@ export const useSettingsStore = create<SettingsStore>()(
             settings: {
                 heroTitle: 'Piezas únicas creadas con consciencia',
                 heroSubtitle: 'Diseños artesanales realizados a mano para acompañar tus rituales diarios.',
-                heroImage: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop',
+                heroImages: [
+                    'https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?q=80&w=2070&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?q=80&w=2070&auto=format&fit=crop'
+                ],
                 whatsapp: '54116543210',
                 instagram: 'doslidias.arte',
                 storeSubtitle: 'Macetas y objetos de autor. Envíos a todo el país.',

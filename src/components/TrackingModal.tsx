@@ -98,7 +98,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
                                                     <div>
                                                         <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">En este momento</p>
                                                         <p className="text-lg font-black text-primary capitalize">
-                                                            {settings.shippingStatuses.find(s => s.id === foundOrder.status)?.label || foundOrder.status.replace('_', ' ')}
+                                                            {settings?.shippingStatuses?.find(s => s.id === foundOrder.status)?.label || foundOrder.status.replace('_', ' ')}
                                                         </p>
                                                     </div>
                                                     <div className="text-right">
@@ -109,7 +109,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
 
                                                 {/* DYNAMIC TIMELINE BASED ON SETTINGS */}
                                                 <div className="flex justify-between relative py-6 gap-2">
-                                                    {settings.shippingStatuses.filter(s => s.id !== 'cancelado').map((status, idx, arr) => {
+                                                    {(settings?.shippingStatuses || []).filter(s => s.id !== 'cancelado').map((status, idx, arr) => {
                                                         const statusIdx = arr.findIndex(s => s.id === foundOrder.status);
                                                         const isCompleted = statusIdx >= idx;
                                                         const isActive = foundOrder.status === status.id;
@@ -117,7 +117,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
 
                                                         return (
                                                             <div key={status.id} className="flex flex-col items-center gap-2 flex-1 relative">
-                                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-700 z-10 ${isCompleted ? status.color + ' border-transparent' : 'bg-white border-gray-100 text-gray-200'}`}>
+                                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-700 z-10 ${isCompleted ? (status.color || '') + ' border-transparent' : 'bg-white border-gray-100 text-gray-200'}`}>
                                                                     <Icon size={18} className={isActive ? 'animate-pulse' : ''} />
                                                                 </div>
                                                                 <p className={`text-[8px] font-black uppercase text-center leading-tight ${isCompleted ? 'text-gray-800' : 'text-gray-300'}`}>{status.label}</p>

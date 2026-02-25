@@ -47,38 +47,38 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-3xl shadow-2xl z-[201] overflow-hidden"
+                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-lg bg-white rounded-[32px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] z-[201] overflow-y-auto max-h-[90vh]"
                     >
-                        <div className="p-8">
-                            <div className="flex justify-between items-center mb-8">
+                        <div className="p-6 md:p-10">
+                            <div className="flex justify-between items-center mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                                         <MapPin size={22} />
                                     </div>
-                                    <h2 className="text-2xl font-bold">Rastreo de Pedido</h2>
+                                    <h2 className="text-2xl font-bold italic tracking-tight">Rastreo</h2>
                                 </div>
                                 <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors"><X size={20} /></button>
                             </div>
 
-                            <form onSubmit={handleSearch} className="mb-8">
+                            <form onSubmit={handleSearch} className="mb-6">
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Identificador de Compra</label>
-                                    <div className="flex gap-2 p-2 bg-gray-50 border rounded-2xl focus-within:border-primary transition-all">
+                                    <div className="flex gap-2 p-1.5 bg-gray-50 border border-gray-100 rounded-2xl focus-within:border-primary transition-all">
                                         <input
                                             required
-                                            placeholder="Ej: ORD-742"
-                                            className="flex-1 bg-transparent px-3 py-2 outline-none font-bold placeholder:font-normal placeholder:text-gray-300"
+                                            placeholder="Ej: ORD-XXX"
+                                            className="flex-1 bg-transparent px-3 py-2 outline-none font-bold placeholder:font-normal placeholder:text-gray-300 text-sm"
                                             value={orderId}
                                             onChange={e => setOrderId(e.target.value)}
                                         />
                                         <button className="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 leading-none">
-                                            <Search size={20} />
+                                            <Search size={18} />
                                         </button>
                                     </div>
                                 </div>
                             </form>
 
-                            <div className="min-h-[250px] flex flex-col items-center justify-center">
+                            <div className="min-h-[180px] flex flex-col items-center justify-center">
                                 {!hasSearched ? (
                                     <div className="text-center opacity-40 py-10">
                                         <Package size={48} className="mx-auto mb-4 stroke-1" />

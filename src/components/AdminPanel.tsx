@@ -30,6 +30,7 @@ import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useOrderStore, Order } from '../store/useOrderStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useGalleryStore } from '../store/useGalleryStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
@@ -37,13 +38,17 @@ const AdminPanel: React.FC = () => {
     const { settings, updateSettings } = useSettingsStore();
     const { allUsers } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder } = useOrderStore();
+    const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery } = useGalleryStore();
 
-    const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers'>('inventory');
+    const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery'>('inventory');
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
+    const [pickingFor, setPickingFor] = useState<'hero' | 'product'>('hero');
+    const [galleryUrlInput, setGalleryUrlInput] = useState('');
 
     const [formData, setFormData] = useState<Omit<Product, 'id'>>({
         name: '',
@@ -150,6 +155,12 @@ const AdminPanel: React.FC = () => {
                         label="Clientes"
                     />
                     <NavItem
+                        active={activeTab === 'gallery'}
+                        onClick={() => setActiveTab('gallery')}
+                        icon={<ImageIcon size={18} />}
+                        label="Galería"
+                    />
+                    <NavItem
                         active={activeTab === 'settings'}
                         onClick={() => setActiveTab('settings')}
                         icon={<Settings size={18} />}
@@ -248,14 +259,27 @@ const AdminPanel: React.FC = () => {
                                             </div>
 
                                             <div className="space-y-8">
-                                                <FormGroup label="Archivo de Imagen (URL)">
-                                                    <input
-                                                        required
-                                                        className="admin-input text-xs font-mono"
-                                                        value={formData.image}
-                                                        onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                                        placeholder="https://images.unsplash.com/..."
-                                                    />
+                                                <FormGroup label="Imagen de la Pieza">
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            required
+                                                            className="admin-input text-xs font-mono flex-1"
+                                                            value={formData.image}
+                                                            onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                                            placeholder="URL de la imagen..."
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setPickingFor('product');
+                                                                setIsGalleryPickerOpen(true);
+                                                            }}
+                                                            className="p-4 bg-slate-900 text-white rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg"
+                                                            title="Seleccionar de Galería"
+                                                        >
+                                                            <ImageIcon size={20} />
+                                                        </button>
+                                                    </div>
                                                 </FormGroup>
 
                                                 <div className="aspect-[4/3] bg-slate-50 rounded-[40px] border border-dashed border-slate-200 flex items-center justify-center overflow-hidden shadow-inner">
@@ -708,36 +732,35 @@ const AdminPanel: React.FC = () => {
                                                 <textarea rows={3} className="admin-input resize-none" value={tempSettings.heroSubtitle} onChange={e => setTempSettings({ ...tempSettings, heroSubtitle: e.target.value })} />
                                             </FormGroup>
                                             <FormGroup label="Imágenes Hero (Carousel)">
-                                                <div className="space-y-4">
-                                                    {tempSettings.heroImages?.map((img, idx) => (
-                                                        <div key={idx} className="flex gap-2">
-                                                            <input
-                                                                className="admin-input font-mono text-xs flex-1"
-                                                                value={img}
-                                                                placeholder="URL de imagen..."
-                                                                onChange={e => {
-                                                                    const imgs = [...(tempSettings.heroImages || [])];
-                                                                    imgs[idx] = e.target.value;
-                                                                    setTempSettings({ ...tempSettings, heroImages: imgs });
-                                                                }}
-                                                            />
-                                                            <button
-                                                                onClick={() => {
-                                                                    const imgs = (tempSettings.heroImages || []).filter((_, i) => i !== idx);
-                                                                    setTempSettings({ ...tempSettings, heroImages: imgs });
-                                                                }}
-                                                                className="p-3 bg-red-50 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    <button
-                                                        onClick={() => setTempSettings({ ...tempSettings, heroImages: [...(tempSettings.heroImages || []), ''] })}
-                                                        className="w-full py-3 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-xs uppercase tracking-widest hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2"
-                                                    >
-                                                        <Plus size={16} /> Añadir Imagen al Slider
-                                                    </button>
+                                                <div className="space-y-6">
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                        {tempSettings.heroImages?.map((img, idx) => (
+                                                            <div key={idx} className="relative aspect-video group rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm">
+                                                                <img src={img} className="w-full h-full object-cover" alt="" />
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const imgs = tempSettings.heroImages.filter((_, i) => i !== idx);
+                                                                        setTempSettings({ ...tempSettings, heroImages: imgs });
+                                                                    }}
+                                                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                        <button
+                                                            onClick={() => {
+                                                                setPickingFor('hero');
+                                                                setIsGalleryPickerOpen(true);
+                                                            }}
+                                                            className="aspect-video border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-300 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                                                        >
+                                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary/10 transition-all">
+                                                                <Plus size={20} />
+                                                            </div>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">Añadir Foto</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </FormGroup>
                                         </div>
@@ -775,6 +798,71 @@ const AdminPanel: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'gallery' && (
+                            <motion.div
+                                key="gallery"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-10 animate-up"
+                            >
+                                <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+                                    <div className="space-y-3">
+                                        <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Galería de Medios</h2>
+                                        <p className="text-slate-400 font-medium text-lg italic">Gestiona las imágenes para tus banners y productos.</p>
+                                    </div>
+                                    <div className="flex gap-4 w-full md:w-auto">
+                                        <div className="relative flex-1 md:w-[400px]">
+                                            <input
+                                                placeholder="URL de nueva imagen..."
+                                                className="w-full pl-6 pr-12 py-4 bg-white border border-slate-100 rounded-[24px] outline-none focus:border-primary shadow-premium font-bold text-sm"
+                                                value={galleryUrlInput}
+                                                onChange={e => setGalleryUrlInput(e.target.value)}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    if (galleryUrlInput) {
+                                                        addToGallery(galleryUrlInput);
+                                                        setGalleryUrlInput('');
+                                                    }
+                                                }}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary text-white rounded-xl shadow-lg hover:scale-105 transition-all"
+                                            >
+                                                <Plus size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                    {galleryImages.length > 0 ? galleryImages.map((image) => (
+                                        <motion.div
+                                            key={image.id}
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="group relative aspect-square rounded-[32px] overflow-hidden border-4 border-white shadow-premium hover:shadow-2xl transition-all"
+                                        >
+                                            <img src={image.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                            <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
+                                                <button
+                                                    onClick={() => removeFromGallery(image.id)}
+                                                    className="p-3 bg-red-500 text-white rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-xl"
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )) : (
+                                        <div className="col-span-full py-20 text-center opacity-40">
+                                            <ImageIcon size={64} className="mx-auto mb-4 stroke-1" />
+                                            <p className="italic">No hay imágenes en la galería aún.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}
@@ -873,6 +961,75 @@ const AdminPanel: React.FC = () => {
                     </AnimatePresence>
                 </div>
             </main>
+
+            {/* MODAL SELECTOR DE GALERÍA (PICKER) */}
+            <AnimatePresence>
+                {isGalleryPickerOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsGalleryPickerOpen(false)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                            className="bg-white w-full max-w-4xl rounded-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
+                        >
+                            <div className="p-10 max-h-[85vh] overflow-y-auto">
+                                <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                                    <div>
+                                        <h3 className="text-3xl font-black text-slate-900 display-font tracking-tight">Seleccionar Imagen</h3>
+                                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Elige una foto de tu biblioteca</p>
+                                    </div>
+                                    <button onClick={() => setIsGalleryPickerOpen(false)} className="p-3 bg-slate-50 text-slate-300 rounded-[20px] hover:bg-slate-100 hover:text-slate-900 transition-all"><X size={24} /></button>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    {galleryImages.map((image) => (
+                                        <button
+                                            key={image.id}
+                                            onClick={() => {
+                                                if (pickingFor === 'hero') {
+                                                    setTempSettings({
+                                                        ...tempSettings,
+                                                        heroImages: [...tempSettings.heroImages, image.url]
+                                                    });
+                                                } else if (pickingFor === 'product') {
+                                                    setFormData({
+                                                        ...formData,
+                                                        image: image.url
+                                                    });
+                                                }
+                                                setIsGalleryPickerOpen(false);
+                                            }}
+                                            className="group relative aspect-square rounded-[32px] overflow-hidden border-4 border-transparent hover:border-primary transition-all shadow-md hover:shadow-xl"
+                                        >
+                                            <img src={image.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                            <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                                                <div className="w-12 h-12 bg-white text-primary rounded-full flex items-center justify-center shadow-2xl">
+                                                    <Check size={24} />
+                                                </div>
+                                            </div>
+                                        </button>
+                                    ))}
+
+                                    {/* Link to go to gallery if empty */}
+                                    {galleryImages.length === 0 && (
+                                        <div className="col-span-full py-20 text-center space-y-4">
+                                            <p className="text-slate-300 italic font-bold">Tu galería está vacía.</p>
+                                            <button
+                                                onClick={() => {
+                                                    setIsGalleryPickerOpen(false);
+                                                    setActiveTab('gallery');
+                                                }}
+                                                className="btn-primary"
+                                            >Ir a Galería a subir fotos</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* EXPEDIENTE DE PEDIDO (MODAL DETALLES) */}
             <AnimatePresence>

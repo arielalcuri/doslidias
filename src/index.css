@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: #5fb1b1;
+        --primary-dark: #4a8d8d;
+        --secondary: #e67300;
+    }
+
+    body {
+        @apply bg-[#FCFAF8] text-[#2d3436] font-sans antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-serif tracking-tight;
+    }
+}
+
+@layer components {
+
+    /* PREMIUM BUTTONS */
+    .btn-primary {
+        @apply px-10 py-4 bg-primary text-white rounded-full font-bold transition-all duration-500 shadow-xl shadow-primary/25 hover:scale-[1.05] active:scale-[0.95] hover:bg-primary-dark disabled:opacity-50 flex items-center justify-center gap-3 uppercase text-xs tracking-widest;
+    }
+
+    .btn-secondary {
+        @apply px-10 py-4 border-2 border-primary text-primary rounded-full font-bold transition-all duration-300 hover:bg-primary hover:text-white active:scale-[0.95] flex items-center justify-center gap-3 uppercase text-xs tracking-widest;
+    }
+
+    /* CARDS & CONTAINERS */
+    .glass-card {
+        @apply bg-white border border-slate-100 shadow-card rounded-[32px] overflow-hidden;
+    }
+
+    .admin-sidebar-item {
+        @apply flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm transition-all duration-300;
+    }
+
+    .admin-sidebar-item.active {
+        @apply bg-primary text-white shadow-xl shadow-primary/30 scale-[1.02] z-10;
+    }
+
+    .admin-sidebar-item.inactive {
+        @apply text-slate-300 hover:bg-slate-50 hover:text-slate-600;
+    }
+
+    /* FORM INPUTS */
+    .admin-input {
+        @apply w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl outline-none transition-all duration-300 font-bold placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5;
+    }
+
+    .auth-input {
+        @apply w-full pr-6 py-5 bg-slate-50 border border-slate-100 rounded-3xl outline-none focus:bg-white focus:border-primary transition-all font-bold text-sm placeholder:text-slate-300;
+    }
+
+    /* UTILS */
+    .display-font {
+        font-family: 'Marcellus', serif;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full border-2 border-transparent bg-clip-content;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes loading {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    50% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Table Enhancements */
+.admin-table {
+    @apply w-full border-separate border-spacing-0;
+}
+
+.admin-table th {
+    @apply px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] border-b border-slate-50 text-left;
+}
+
+.admin-table td {
+    @apply px-8 py-7 border-b border-slate-50/50;
+}

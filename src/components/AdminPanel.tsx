@@ -847,7 +847,7 @@ const AdminPanel: React.FC = () => {
             {/* EXPEDIENTE DE PEDIDO (MODAL DETALLES) */}
             <AnimatePresence>
                 {selectedOrder && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-8">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedOrder(null)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 50 }}

@@ -709,21 +709,21 @@ const AdminPanel: React.FC = () => {
                                             </FormGroup>
                                             <FormGroup label="Imágenes Hero (Carousel)">
                                                 <div className="space-y-4">
-                                                    {tempSettings.heroImages.map((img, idx) => (
+                                                    {tempSettings.heroImages?.map((img, idx) => (
                                                         <div key={idx} className="flex gap-2">
                                                             <input
                                                                 className="admin-input font-mono text-xs flex-1"
                                                                 value={img}
                                                                 placeholder="URL de imagen..."
                                                                 onChange={e => {
-                                                                    const imgs = [...tempSettings.heroImages];
+                                                                    const imgs = [...(tempSettings.heroImages || [])];
                                                                     imgs[idx] = e.target.value;
                                                                     setTempSettings({ ...tempSettings, heroImages: imgs });
                                                                 }}
                                                             />
                                                             <button
                                                                 onClick={() => {
-                                                                    const imgs = tempSettings.heroImages.filter((_, i) => i !== idx);
+                                                                    const imgs = (tempSettings.heroImages || []).filter((_, i) => i !== idx);
                                                                     setTempSettings({ ...tempSettings, heroImages: imgs });
                                                                 }}
                                                                 className="p-3 bg-red-50 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
@@ -733,7 +733,7 @@ const AdminPanel: React.FC = () => {
                                                         </div>
                                                     ))}
                                                     <button
-                                                        onClick={() => setTempSettings({ ...tempSettings, heroImages: [...tempSettings.heroImages, ''] })}
+                                                        onClick={() => setTempSettings({ ...tempSettings, heroImages: [...(tempSettings.heroImages || []), ''] })}
                                                         className="w-full py-3 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-xs uppercase tracking-widest hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2"
                                                     >
                                                         <Plus size={16} /> Añadir Imagen al Slider

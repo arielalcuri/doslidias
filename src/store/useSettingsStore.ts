@@ -60,6 +60,6 @@ export const useSettingsStore = create<SettingsStore>()(
             },
             updateSettings: (newSettings) => set({ settings: newSettings }),
         }),
-        { name: 'dos-lidias-settings-v2' }
+        { name: 'dos-lidias-settings-v3' }
     )
 );

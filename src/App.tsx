@@ -100,21 +100,27 @@ function App() {
                     >
                         <div className="hero-img-container shadow-2xl relative w-full h-full overflow-hidden rounded-[40px]">
                             <AnimatePresence mode="wait">
-                                <motion.img
-                                    key={currentImageIndex}
-                                    src={settings.heroImages[currentImageIndex]}
-                                    alt="Main Art"
-                                    initial={{ opacity: 0, x: 50 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -50 }}
-                                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                                    className="absolute inset-0 w-full h-full object-cover"
-                                />
+                                {settings.heroImages && settings.heroImages.length > 0 ? (
+                                    <motion.img
+                                        key={currentImageIndex}
+                                        src={settings.heroImages[currentImageIndex]}
+                                        alt="Main Art"
+                                        initial={{ opacity: 0, x: 50 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -50 }}
+                                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-300 italic">
+                                        Sin imágenes configuradas
+                                    </div>
+                                )}
                             </AnimatePresence>
 
                             {/* Slide Indicators */}
                             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                                {settings.heroImages.map((_, idx) => (
+                                {settings.heroImages?.map((_, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => setCurrentImageIndex(idx)}

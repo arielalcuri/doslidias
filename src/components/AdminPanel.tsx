@@ -49,7 +49,7 @@ const AdminPanel: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
     const [pickingFor, setPickingFor] = useState<'hero' | 'product'>('hero');
-    const [galleryUrlInput, setGalleryUrlInput] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Product, 'id'>>({
         name: '',
@@ -61,15 +61,33 @@ const AdminPanel: React.FC = () => {
 
     const [tempSettings, setTempSettings] = useState(settings);
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                addToGallery(base64String);
-            };
-            reader.readAsDataURL(file);
+            setIsUploading(true);
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'doslidias');
+            formData.append('cloud_name', 'dm11xhsaq');
+
+            try {
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/dm11xhsaq/image/upload`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                    }
+                );
+                const data = await response.json();
+                if (data.secure_url) {
+                    addToGallery(data.secure_url);
+                }
+            } catch (error) {
+                console.error('Error uploading to Cloudinary:', error);
+                alert('Error al subir la imagen. Por favor intenta de nuevo.');
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
@@ -829,11 +847,17 @@ const AdminPanel: React.FC = () => {
                                         <p className="text-slate-400 font-medium text-lg italic">Gestiona las imágenes para tus banners y productos.</p>
                                     </div>
                                     <div className="flex gap-4 w-full md:w-auto">
-                                        <label className="flex-1 md:w-[400px] cursor-pointer group">
+                                        <label className={`flex-1 md:w-[400px] cursor-pointer group ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                             <div className="flex items-center justify-between pl-6 pr-2 py-2 bg-white border border-slate-100 rounded-[24px] shadow-premium hover:border-primary transition-all">
-                                                <span className="text-slate-400 font-bold text-sm">Subir nueva foto...</span>
+                                                <span className="text-slate-400 font-bold text-sm">
+                                                    {isUploading ? 'Subiendo...' : 'Subir nueva foto a la nube...'}
+                                                </span>
                                                 <div className="p-3 bg-primary text-white rounded-xl shadow-lg group-hover:scale-105 transition-all">
-                                                    <Upload size={18} />
+                                                    {isUploading ? (
+                                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    ) : (
+                                                        <Upload size={18} />
+                                                    )}
                                                 </div>
                                             </div>
                                             <input
@@ -841,6 +865,7 @@ const AdminPanel: React.FC = () => {
                                                 accept="image/*"
                                                 className="hidden"
                                                 onChange={handleFileUpload}
+                                                disabled={isUploading}
                                             />
                                         </label>
                                     </div>

@@ -4,7 +4,7 @@ import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
 import CheckoutModal from './components/CheckoutModal';
 import TrackingModal from './components/TrackingModal';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './components/Logo';
 import { useProductStore } from './store/useProductStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -119,8 +119,8 @@ function App() {
                                         key={idx}
                                         onClick={() => setCurrentImageIndex(idx)}
                                         className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${currentImageIndex === idx
-                                                ? 'bg-white w-8 shadow-lg'
-                                                : 'bg-white/40 hover:bg-white/60'
+                                            ? 'bg-white w-8 shadow-lg'
+                                            : 'bg-white/40 hover:bg-white/60'
                                             }`}
                                     />
                                 ))}

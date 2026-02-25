@@ -35,19 +35,19 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
     return (
         <AnimatePresence>
             {isOpen && (
-                <>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-md z-[200]"
+                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-lg bg-white rounded-[32px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] z-[201] overflow-y-auto max-h-[90vh]"
+                        className="relative w-full max-w-lg bg-white rounded-[32px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] z-[201] overflow-y-auto max-h-[90vh]"
                     >
                         <div className="p-6 md:p-10">
                             <div className="flex justify-between items-center mb-6">
@@ -165,7 +165,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
                             </div>
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );

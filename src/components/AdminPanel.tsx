@@ -24,7 +24,8 @@ import {
     Palette,
     MessageCircle,
     Users,
-    History
+    History,
+    Upload
 } from 'lucide-react';
 import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -59,6 +60,18 @@ const AdminPanel: React.FC = () => {
     });
 
     const [tempSettings, setTempSettings] = useState(settings);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                addToGallery(base64String);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -816,25 +829,20 @@ const AdminPanel: React.FC = () => {
                                         <p className="text-slate-400 font-medium text-lg italic">Gestiona las imágenes para tus banners y productos.</p>
                                     </div>
                                     <div className="flex gap-4 w-full md:w-auto">
-                                        <div className="relative flex-1 md:w-[400px]">
+                                        <label className="flex-1 md:w-[400px] cursor-pointer group">
+                                            <div className="flex items-center justify-between pl-6 pr-2 py-2 bg-white border border-slate-100 rounded-[24px] shadow-premium hover:border-primary transition-all">
+                                                <span className="text-slate-400 font-bold text-sm">Subir nueva foto...</span>
+                                                <div className="p-3 bg-primary text-white rounded-xl shadow-lg group-hover:scale-105 transition-all">
+                                                    <Upload size={18} />
+                                                </div>
+                                            </div>
                                             <input
-                                                placeholder="URL de nueva imagen..."
-                                                className="w-full pl-6 pr-12 py-4 bg-white border border-slate-100 rounded-[24px] outline-none focus:border-primary shadow-premium font-bold text-sm"
-                                                value={galleryUrlInput}
-                                                onChange={e => setGalleryUrlInput(e.target.value)}
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleFileUpload}
                                             />
-                                            <button
-                                                onClick={() => {
-                                                    if (galleryUrlInput) {
-                                                        addToGallery(galleryUrlInput);
-                                                        setGalleryUrlInput('');
-                                                    }
-                                                }}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary text-white rounded-xl shadow-lg hover:scale-105 transition-all"
-                                            >
-                                                <Plus size={18} />
-                                            </button>
-                                        </div>
+                                        </label>
                                     </div>
                                 </div>
 

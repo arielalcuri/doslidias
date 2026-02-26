@@ -32,6 +32,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useOrderStore, Order } from '../store/useOrderStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGalleryStore } from '../store/useGalleryStore';
+import { useAdminAuthStore } from '../store/useAdminAuthStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
@@ -40,6 +41,8 @@ const AdminPanel: React.FC = () => {
     const { allUsers } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery } = useGalleryStore();
+
+    const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword, adminPass } = useAdminAuthStore();
 
     const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery'>('inventory');
     const [isAdding, setIsAdding] = useState(false);
@@ -60,6 +63,10 @@ const AdminPanel: React.FC = () => {
     });
 
     const [tempSettings, setTempSettings] = useState(settings);
+    const [loginUser, setLoginUser] = useState('');
+    const [loginPass, setLoginPass] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [loginError, setLoginError] = useState(false);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -148,6 +155,71 @@ const AdminPanel: React.FC = () => {
         return <Package size={14} />;
     };
 
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-[#F7F9FB] flex items-center justify-center p-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full max-w-md"
+                >
+                    <div className="flex flex-col items-center mb-10">
+                        <Logo size="lg" />
+                        <h2 className="text-2xl font-black text-slate-900 display-font mt-6">Panel de Gestión</h2>
+                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Acceso restringido</p>
+                    </div>
+
+                    <div className="glass-card p-10 space-y-8">
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            if (!adminLogin(loginUser, loginPass)) {
+                                setLoginError(true);
+                            }
+                        }} className="space-y-6">
+                            <FormGroup label="Usuario">
+                                <input
+                                    className="admin-input"
+                                    placeholder="Nombre de usuario"
+                                    value={loginUser}
+                                    onChange={e => {
+                                        setLoginUser(e.target.value);
+                                        setLoginError(false);
+                                    }}
+                                />
+                            </FormGroup>
+                            <FormGroup label="Contraseña">
+                                <input
+                                    type="password"
+                                    className="admin-input"
+                                    placeholder="••••••••"
+                                    value={loginPass}
+                                    onChange={e => {
+                                        setLoginPass(e.target.value);
+                                        setLoginError(false);
+                                    }}
+                                />
+                            </FormGroup>
+
+                            {loginError && (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-red-500 text-xs font-bold text-center italic"
+                                >
+                                    Credenciales incorrectas. Intenta de nuevo.
+                                </motion.p>
+                            )}
+
+                            <button type="submit" className="btn-primary w-full py-5">
+                                Ingresar al Sistema
+                            </button>
+                        </form>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex min-h-screen bg-[#F7F9FB] font-sans text-slate-800">
             {/* Sidebar Navigation */}
@@ -199,7 +271,13 @@ const AdminPanel: React.FC = () => {
                     />
                 </nav>
 
-                <div className="p-8 mt-auto border-t border-slate-50">
+                <div className="p-8 mt-auto border-t border-slate-50 space-y-6">
+                    <button
+                        onClick={() => adminLogout()}
+                        className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-xs text-red-400 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
+                    >
+                        Salir del Panel
+                    </button>
                     <div className="text-center">
                         <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest leading-none">Powered by CORTEX</span>
                     </div>
@@ -827,6 +905,62 @@ const AdminPanel: React.FC = () => {
                                                     <div className={`absolute top-1.5 w-7 h-7 bg-white rounded-full shadow-2xl transition-all duration-700 transform ${tempSettings.isVacationMode ? 'left-11 shadow-inner' : 'left-1.5'}`} />
                                                 </button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* SECURITY SETTINGS */}
+                                <div className="glass-card p-12 space-y-12">
+                                    <div className="flex justify-between items-center border-b border-slate-50 pb-10">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-16 h-16 bg-slate-900 text-white rounded-[24px] flex items-center justify-center shadow-lg">
+                                                <Database size={32} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight leading-none">Seguridad</h3>
+                                                <p className="text-sm text-slate-400 font-medium mt-1">Gestiona tus credenciales de acceso al panel.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                        <div className="space-y-6">
+                                            <FormGroup label="Nueva Contraseña">
+                                                <div className="flex gap-4">
+                                                    <input
+                                                        type="password"
+                                                        className="admin-input"
+                                                        placeholder="Mínimo 3 caracteres"
+                                                        value={newPassword}
+                                                        onChange={e => setNewPassword(e.target.value)}
+                                                    />
+                                                    <button
+                                                        onClick={() => {
+                                                            if (newPassword.length < 3) {
+                                                                alert('La contraseña debe tener al menos 3 caracteres');
+                                                                return;
+                                                            }
+                                                            updatePassword(newPassword);
+                                                            setNewPassword('');
+                                                            alert('Contraseña actualizada correctamente');
+                                                        }}
+                                                        className="btn-primary"
+                                                    >
+                                                        Actualizar
+                                                    </button>
+                                                </div>
+                                            </FormGroup>
+                                            <div className="p-6 bg-slate-50 rounded-2xl flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-300">
+                                                    <Check size={20} />
+                                                </div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">La contraseña actual está en vigor.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col justify-center p-8 bg-slate-50/30 rounded-[32px] border border-slate-100 border-dashed">
+                                            <p className="text-xs text-slate-400 font-medium leading-relaxed italic">
+                                                "Como administrador de Dos Lidias, eres el guardián de la experiencia de tus clientes. Mantén tus credenciales seguras para proteger la integridad de tu tienda."
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

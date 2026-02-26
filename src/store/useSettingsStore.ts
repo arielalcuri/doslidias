@@ -41,7 +41,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 instagram: 'doslidias.arte',
                 storeSubtitle: 'Macetas y objetos de autor. Envíos a todo el país.',
                 isVacationMode: false,
-                shippingInfo: 'Punto de retiro en Ramos Mejía, Zona Oeste. Para envíos coordinar',
+                shippingInfo: 'Retiros en Ramos Mejía, Zona Oeste. Envíos a coordinar por WhatsApp.',
                 shippingStatuses: [
                     { id: 'pendiente', label: 'Pendiente', color: 'bg-amber-100 text-amber-700 border-amber-200' },
                     { id: 'embalado', label: 'Pedido Embalado', color: 'bg-blue-100 text-blue-700 border-blue-200' },
@@ -60,6 +60,6 @@ export const useSettingsStore = create<SettingsStore>()(
             },
             updateSettings: (newSettings) => set({ settings: newSettings }),
         }),
-        { name: 'dos-lidias-settings-v5' }
+        { name: 'dos-lidias-settings-v6' }
     )
 );

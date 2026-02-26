@@ -98,21 +98,32 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (editingId) {
-            updateProduct(editingId, formData);
-            setEditingId(null);
-        } else {
-            addProduct(formData);
+        try {
+            if (editingId) {
+                await updateProduct(editingId, formData);
+                setEditingId(null);
+            } else {
+                await addProduct(formData);
+            }
+            setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '' });
+            setIsAdding(false);
+            alert('Producto guardado correctamente');
+        } catch (error) {
+            console.error('Error saving product:', error);
+            alert('Error al guardar el producto');
         }
-        setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '' });
-        setIsAdding(false);
     };
 
-    const handleSaveSettings = () => {
-        updateSettings(tempSettings);
-        alert('Configuración guardada correctamente');
+    const handleSaveSettings = async () => {
+        try {
+            await updateSettings(tempSettings);
+            alert('Configuración guardada correctamente');
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            alert('Error al guardar la configuración');
+        }
     };
 
     const startEdit = (product: Product) => {

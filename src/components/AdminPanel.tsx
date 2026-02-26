@@ -298,7 +298,15 @@ const AdminPanel: React.FC = () => {
                             >
                                 <div className="flex justify-between items-end">
                                     <div className="space-y-3">
-                                        <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Piezas y Obras</h2>
+                                        <div className="flex items-center gap-4">
+                                            <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Piezas y Obras</h2>
+                                            <div className={`mt-2 px-3 py-1 rounded-full flex items-center gap-2 border ${import.meta.env.VITE_SUPABASE_URL ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-600'}`}>
+                                                <div className={`w-2 h-2 rounded-full ${import.meta.env.VITE_SUPABASE_URL ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                                    {import.meta.env.VITE_SUPABASE_URL ? 'Sincronización Activa' : 'Error: No Conectado'}
+                                                </span>
+                                            </div>
+                                        </div>
                                         <p className="text-slate-400 font-medium text-lg italic">Control de stock, precios y catálogo visual de arte.</p>
                                     </div>
                                     {!isAdding && (

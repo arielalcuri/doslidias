@@ -36,15 +36,28 @@ import { useAdminAuthStore } from '../store/useAdminAuthStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
-    const { products, addProduct, updateProduct, deleteProduct } = useProductStore();
-    const { settings, updateSettings } = useSettingsStore();
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts } = useProductStore();
+    const { settings, updateSettings, fetchSettings } = useSettingsStore();
     const { allUsers } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder } = useOrderStore();
-    const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery } = useGalleryStore();
+    const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery } = useGalleryStore();
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
     const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery'>('inventory');
+
+    // Cargar datos al montar el panel
+    React.useEffect(() => {
+        const loadData = async () => {
+            await Promise.all([
+                fetchProducts(),
+                fetchSettings(),
+                fetchGallery()
+            ]);
+        };
+        loadData();
+    }, []);
+
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -93,7 +106,8 @@ const AdminPanel: React.FC = () => {
                 );
                 const data = await response.json();
                 if (data.secure_url) {
-                    addToGallery(data.secure_url);
+                    await addToGallery(data.secure_url);
+                    alert('Imagen subida y guardada en la base de datos');
                 }
             } catch (error) {
                 console.error('Error uploading to Cloudinary:', error);

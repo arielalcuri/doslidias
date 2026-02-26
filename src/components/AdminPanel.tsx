@@ -63,6 +63,12 @@ const AdminPanel: React.FC = () => {
     });
 
     const [tempSettings, setTempSettings] = useState(settings);
+
+    // Sincronizar los ajustes temporales cuando se cargan desde la base de datos
+    React.useEffect(() => {
+        setTempSettings(settings);
+    }, [settings]);
+
     const [loginUser, setLoginUser] = useState('');
     const [loginPass, setLoginPass] = useState('');
     const [newPassword, setNewPassword] = useState('');

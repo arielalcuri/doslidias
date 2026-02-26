@@ -210,7 +210,12 @@ function App() {
                     <div className="flex gap-6 mb-8">
                         <button onClick={() => setIsTrackingOpen(true)} className="text-xs uppercase tracking-widest font-bold hover:text-primary transition-colors">Seguir mi pedido</button>
                         <a href="#tienda" className="text-xs uppercase tracking-widest font-bold hover:text-primary transition-colors">Términos y condiciones</a>
-                        <a href="/admin" className="text-[10px] uppercase tracking-[0.2em] font-black text-primary/60 hover:text-primary transition-all border-l pl-6 ml-2 border-border/50">Acceso Administrador</a>
+                        <a
+                            href="/admin"
+                            className="text-[11px] uppercase tracking-[0.2em] font-black text-primary hover:text-primary/70 transition-all border-l pl-6 ml-2 border-border"
+                        >
+                            Acceso Administrador
+                        </a>
                     </div>
                     <div className="text-xs text-text-muted/60 uppercase tracking-widest pt-8 border-t w-full">
                         &copy; {new Date().getFullYear()} Dos Lidias. Todos los derechos reservados.

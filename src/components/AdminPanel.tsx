@@ -42,7 +42,7 @@ const AdminPanel: React.FC = () => {
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery } = useGalleryStore();
 
-    const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword, adminPass } = useAdminAuthStore();
+    const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
     const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery'>('inventory');
     const [isAdding, setIsAdding] = useState(false);

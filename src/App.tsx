@@ -17,7 +17,7 @@ import { MessageCircle, Truck, ShieldCheck, Palette, MapPin } from 'lucide-react
 function App() {
     const { products, fetchProducts } = useProductStore();
     const { settings, fetchSettings } = useSettingsStore();
-    const { images: galleryImages, fetchGallery } = useGalleryStore();
+    const { fetchGallery } = useGalleryStore();
     const { isAuthModalOpen, setAuthModalOpen } = useAuthStore();
     const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);

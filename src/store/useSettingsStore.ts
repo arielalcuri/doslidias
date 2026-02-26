@@ -30,8 +30,8 @@ export const useSettingsStore = create<SettingsStore>()(
     persist(
         (set) => ({
             settings: {
-                heroTitle: 'Piezas únicas creadas con consciencia',
-                heroSubtitle: 'Diseños artesanales realizados a mano para acompañar tus rituales diarios.',
+                heroTitle: 'Arte sobre macetas',
+                heroSubtitle: 'Macetas de barro con diseños exclusivos para cada rincón de tu hogar',
                 heroImages: [
                     'https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop',
                     'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?q=80&w=2070&auto=format&fit=crop',
@@ -60,6 +60,6 @@ export const useSettingsStore = create<SettingsStore>()(
             },
             updateSettings: (newSettings) => set({ settings: newSettings }),
         }),
-        { name: 'dos-lidias-settings-v4' }
+        { name: 'dos-lidias-settings-v5' }
     )
 );

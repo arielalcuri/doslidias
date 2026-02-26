@@ -64,28 +64,29 @@ function App() {
             />
 
             {/* Hero Section */}
-            <header className="relative w-full py-24 md:py-32 flex items-center overflow-hidden bg-[#faf7f2] mt-16">
-                <div className="container grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+            <header className="relative w-full py-12 md:py-32 flex items-center overflow-hidden bg-[#faf7f2] mt-16 md:mt-20">
+                <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center relative z-10">
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
+                        className="text-center md:text-left"
                     >
-                        <span className="text-primary font-bold tracking-[0.2em] mb-4 block">ARTE EN BARRO</span>
-                        <h1 className="text-6xl mb-6 leading-tight">
+                        <span className="text-primary font-bold tracking-[0.2em] mb-4 block text-xs md:text-sm">ARTE EN BARRO</span>
+                        <h1 className="text-4xl md:text-6xl mb-6 leading-tight">
                             {settings.heroTitle.split(' ').map((word, i) =>
                                 i === settings.heroTitle.split(' ').length - 1 ?
                                     <span key={i} className="italic text-primary"> {word}</span> : word + ' '
                             )}
                         </h1>
-                        <p className="text-xl text-text-muted mb-10 max-w-lg">
+                        <p className="text-lg md:text-xl text-text-muted mb-10 max-w-lg">
                             {settings.heroSubtitle}
                         </p>
-                        <div className="flex flex-wrap gap-4">
-                            <a href="#tienda" className="btn-primary">Ver Catálogo</a>
+                        <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                            <a href="#tienda" className="btn-primary w-full sm:w-auto">Ver Catálogo</a>
                             <button
                                 onClick={() => setIsTrackingOpen(true)}
-                                className="px-8 py-3 border border-border rounded-full hover:bg-black/5 font-medium flex items-center gap-2 transition-colors"
+                                className="w-full sm:w-auto px-8 py-3 border border-border rounded-full hover:bg-black/5 font-medium flex items-center justify-center gap-2 transition-colors"
                             >
                                 <Truck size={20} /> Seguir mi Pedido
                             </button>
@@ -96,7 +97,7 @@ function App() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1 }}
-                        className="hidden md:block relative h-[500px]"
+                        className="relative h-[350px] md:h-[500px] w-full"
                     >
                         <div className="hero-img-container shadow-2xl relative w-full h-full overflow-hidden rounded-[40px]">
                             <AnimatePresence mode="wait">
@@ -138,14 +139,14 @@ function App() {
 
             {/* Vacation Banner */}
             {settings.isVacationMode && (
-                <div className="bg-primary text-white py-4 text-center font-bold sticky top-16 z-40 shadow-lg">
+                <div className="bg-primary text-white py-4 px-4 text-center font-bold sticky top-16 z-40 shadow-lg text-sm md:text-base">
                     🏝️ LA TIENDA SE ENCUENTRA EN MODO PAUSA POR VACACIONES.
                 </div>
             )}
 
             {/* Features */}
             <section className="py-24 bg-white">
-                <div className="container grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
                     <div className="flex flex-col items-center">
                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
                             <Palette size={28} />
@@ -172,7 +173,7 @@ function App() {
 
             {/* Store Section */}
             <section id="tienda" className="py-24 bg-[#fdfaf6]">
-                <div className="container px-4 md:px-6">
+                <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-8">
                         <div>
                             <h2 className="text-5xl md:text-7xl mb-4 text-text-main">La Tienda</h2>
@@ -200,7 +201,7 @@ function App() {
 
             {/* Footer */}
             <footer className="py-16 bg-[#fafaf8]">
-                <div className="container text-center flex flex-col items-center">
+                <div className="container mx-auto px-6 text-center flex flex-col items-center">
                     <Logo size="md" />
                     <p className="text-text-muted max-w-md mx-auto mb-8 mt-6 italic">
                         {settings.storeSubtitle}

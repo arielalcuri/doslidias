@@ -11,17 +11,25 @@ import { useSettingsStore } from './store/useSettingsStore';
 import { useAuthStore } from './store/useAuthStore';
 import AdminPanel from './components/AdminPanel';
 import AuthModal from './components/AuthModal';
+import { useGalleryStore } from './store/useGalleryStore';
 import { MessageCircle, Truck, ShieldCheck, Palette, MapPin } from 'lucide-react';
 
 function App() {
-    const { products } = useProductStore();
-    const { settings } = useSettingsStore();
+    const { products, fetchProducts } = useProductStore();
+    const { settings, fetchSettings } = useSettingsStore();
+    const { images: galleryImages, fetchGallery } = useGalleryStore();
     const { isAuthModalOpen, setAuthModalOpen } = useAuthStore();
     const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isTrackingOpen, setIsTrackingOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        fetchSettings();
+        fetchProducts();
+        fetchGallery();
+    }, []);
 
     useEffect(() => {
         if (settings.heroImages && settings.heroImages.length > 1) {

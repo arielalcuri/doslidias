@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '../lib/supabase';
 
 export interface Product {
     id: string;
@@ -12,50 +13,61 @@ export interface Product {
 
 interface ProductStore {
     products: Product[];
-    addProduct: (product: Omit<Product, 'id'>) => void;
-    updateProduct: (id: string, product: Omit<Product, 'id'>) => void;
-    deleteProduct: (id: string) => void;
+    fetchProducts: () => Promise<void>;
+    addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+    updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
+    deleteProduct: (id: string) => Promise<void>;
 }
 
 export const useProductStore = create<ProductStore>()(
     persist(
         (set) => ({
-            products: [
-                {
-                    id: '1',
-                    name: 'Maceta Nóvum 15cm',
-                    price: 4500,
-                    category: 'Macetas',
-                    description: 'Maceta de barro intervenida con diseños geométricos en blanco y negro.',
-                    image: 'https://images.unsplash.com/photo-1599599810753-480998edc414?q=80&w=1974&auto=format&fit=crop'
-                },
-                {
-                    id: '2',
-                    name: 'Azul Profundo L',
-                    price: 5200,
-                    category: 'Macetas',
-                    description: 'Maceta grande pintada a mano con degradé azul y detalles en oro.',
-                    image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=1935&auto=format&fit=crop'
-                },
-                {
-                    id: '3',
-                    name: 'Combo Dúo Terra',
-                    price: 8900,
-                    category: 'Combos',
-                    description: 'Set de dos macetas en tonos tierra, ideales para suculentas.',
-                    image: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=2072&auto=format&fit=crop'
+            products: [],
+            fetchProducts: async () => {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (data && !error) {
+                    set({ products: data });
                 }
-            ],
-            addProduct: (product) => set((state) => ({
-                products: [...state.products, { ...product, id: Math.random().toString(36).substr(2, 9) }]
-            })),
-            updateProduct: (id, product) => set((state) => ({
-                products: state.products.map(p => p.id === id ? { ...product, id } : p)
-            })),
-            deleteProduct: (id) => set((state) => ({
-                products: state.products.filter(p => p.id !== id)
-            })),
+            },
+            addProduct: async (product) => {
+                const { data, error } = await supabase
+                    .from('products')
+                    .insert([product])
+                    .select();
+
+                if (data && !error) {
+                    set((state) => ({ products: [data[0], ...state.products] }));
+                }
+            },
+            updateProduct: async (id, product) => {
+                const { error } = await supabase
+                    .from('products')
+                    .update(product)
+                    .eq('id', id);
+
+                if (!error) {
+                    set((state) => ({
+                        products: state.products.map(p => p.id === id ? { ...product, id } : p)
+                    }));
+                }
+            },
+            deleteProduct: async (id) => {
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', id);
+
+                if (!error) {
+                    set((state) => ({
+                        products: state.products.filter(p => p.id !== id)
+                    }));
+                }
+            },
         }),
-        { name: 'dos-lidias-products' }
+        { name: 'dos-lidias-products-v2' }
     )
 );

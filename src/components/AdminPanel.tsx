@@ -374,7 +374,21 @@ const AdminPanel: React.FC = () => {
                                                 </FormGroup>
 
                                                 <div className="grid grid-cols-2 gap-8">
-                                                    <FormGroup label="Precio ($)">
+                                                    <FormGroup label="N° de Maceta (Referencia)">
+                                                        <select
+                                                            className="admin-input"
+                                                            onChange={e => {
+                                                                const size = settings.potSizes?.find(s => s.number === e.target.value);
+                                                                if (size) setFormData({ ...formData, price: size.price });
+                                                            }}
+                                                        >
+                                                            <option value="">Seleccionar N°...</option>
+                                                            {settings.potSizes?.map(s => (
+                                                                <option key={s.number} value={s.number}>{s.number} - ${s.price.toLocaleString('es-AR')}</option>
+                                                            ))}
+                                                        </select>
+                                                    </FormGroup>
+                                                    <FormGroup label="Precio Final ($)">
                                                         <input
                                                             required type="number"
                                                             className="admin-input"
@@ -382,18 +396,19 @@ const AdminPanel: React.FC = () => {
                                                             onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
                                                         />
                                                     </FormGroup>
-                                                    <FormGroup label="Colección">
-                                                        <select
-                                                            className="admin-input"
-                                                            value={formData.category}
-                                                            onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                                        >
-                                                            <option>Macetas</option>
-                                                            <option>Arte</option>
-                                                            <option>Combos</option>
-                                                        </select>
-                                                    </FormGroup>
                                                 </div>
+
+                                                <FormGroup label="Colección / Categoría">
+                                                    <select
+                                                        className="admin-input"
+                                                        value={formData.category}
+                                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                    >
+                                                        <option>Macetas</option>
+                                                        <option>Arte</option>
+                                                        <option>Combos</option>
+                                                    </select>
+                                                </FormGroup>
 
                                                 <FormGroup label="Relato (Descripción)">
                                                     <textarea
@@ -867,6 +882,42 @@ const AdminPanel: React.FC = () => {
                                     </div>
                                 </div>
 
+                                {/* POT SIZE PRICING */}
+                                <div className="glass-card p-12 space-y-12">
+                                    <div className="flex justify-between items-center border-b border-slate-50 pb-10">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-16 h-16 bg-amber-500/10 text-amber-600 rounded-[24px] flex items-center justify-center shadow-inner">
+                                                <Database size={32} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight leading-none">Precios por Tamaño (Paramétricas)</h3>
+                                                <p className="text-sm text-slate-400 font-medium mt-1">Configura los precios base según el número de maceta.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                        {tempSettings.potSizes?.map((size, i) => (
+                                            <div key={size.number} className="p-8 bg-slate-50 shadow-inner rounded-[32px] border border-slate-100 space-y-4">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{size.number}</p>
+                                                <div className="relative">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-black">$</span>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full pl-10 pr-6 py-4 bg-white rounded-2xl border border-slate-50 font-black text-slate-800 outline-none focus:border-primary transition-all shadow-sm"
+                                                        value={size.price}
+                                                        onChange={e => {
+                                                            const newSizes = [...tempSettings.potSizes];
+                                                            newSizes[i].price = Number(e.target.value);
+                                                            setTempSettings({ ...tempSettings, potSizes: newSizes });
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                     <div className="glass-card p-12 space-y-10">
                                         <h3 className="text-3xl font-black flex items-center gap-5 text-slate-800 display-font border-b border-slate-50 pb-6 leading-none">
@@ -1166,283 +1217,289 @@ const AdminPanel: React.FC = () => {
                         )}
                     </AnimatePresence>
                 </div>
-            </main>
+            </main >
 
             {/* MODAL SELECTOR DE GALERÍA (PICKER) */}
             <AnimatePresence>
-                {isGalleryPickerOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsGalleryPickerOpen(false)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                            className="bg-white w-full max-w-4xl rounded-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
-                        >
-                            <div className="p-10 max-h-[85vh] overflow-y-auto">
-                                <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
-                                    <div>
-                                        <h3 className="text-3xl font-black text-slate-900 display-font tracking-tight">Seleccionar Imagen</h3>
-                                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Elige una foto de tu biblioteca</p>
-                                    </div>
-                                    <button onClick={() => setIsGalleryPickerOpen(false)} className="p-3 bg-slate-50 text-slate-300 rounded-[20px] hover:bg-slate-100 hover:text-slate-900 transition-all"><X size={24} /></button>
-                                </div>
-
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                    {galleryImages.map((image) => (
-                                        <button
-                                            key={image.id}
-                                            onClick={() => {
-                                                if (pickingFor === 'hero') {
-                                                    setTempSettings({
-                                                        ...tempSettings,
-                                                        heroImages: [...tempSettings.heroImages, image.url]
-                                                    });
-                                                } else if (pickingFor === 'product') {
-                                                    setFormData({
-                                                        ...formData,
-                                                        image: image.url
-                                                    });
-                                                }
-                                                setIsGalleryPickerOpen(false);
-                                            }}
-                                            className="group relative aspect-square rounded-[32px] overflow-hidden border-4 border-transparent hover:border-primary transition-all shadow-md hover:shadow-xl"
-                                        >
-                                            <img src={image.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                                            <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                                                <div className="w-12 h-12 bg-white text-primary rounded-full flex items-center justify-center shadow-2xl">
-                                                    <Check size={24} />
-                                                </div>
-                                            </div>
-                                        </button>
-                                    ))}
-
-                                    {/* Link to go to gallery if empty */}
-                                    {galleryImages.length === 0 && (
-                                        <div className="col-span-full py-20 text-center space-y-4">
-                                            <p className="text-slate-300 italic font-bold">Tu galería está vacía.</p>
-                                            <button
-                                                onClick={() => {
-                                                    setIsGalleryPickerOpen(false);
-                                                    setActiveTab('gallery');
-                                                }}
-                                                className="btn-primary"
-                                            >Ir a Galería a subir fotos</button>
+                {
+                    isGalleryPickerOpen && (
+                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsGalleryPickerOpen(false)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                                className="bg-white w-full max-w-4xl rounded-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
+                            >
+                                <div className="p-10 max-h-[85vh] overflow-y-auto">
+                                    <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                                        <div>
+                                            <h3 className="text-3xl font-black text-slate-900 display-font tracking-tight">Seleccionar Imagen</h3>
+                                            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Elige una foto de tu biblioteca</p>
                                         </div>
-                                    )}
+                                        <button onClick={() => setIsGalleryPickerOpen(false)} className="p-3 bg-slate-50 text-slate-300 rounded-[20px] hover:bg-slate-100 hover:text-slate-900 transition-all"><X size={24} /></button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        {galleryImages.map((image) => (
+                                            <button
+                                                key={image.id}
+                                                onClick={() => {
+                                                    if (pickingFor === 'hero') {
+                                                        setTempSettings({
+                                                            ...tempSettings,
+                                                            heroImages: [...tempSettings.heroImages, image.url]
+                                                        });
+                                                    } else if (pickingFor === 'product') {
+                                                        setFormData({
+                                                            ...formData,
+                                                            image: image.url
+                                                        });
+                                                    }
+                                                    setIsGalleryPickerOpen(false);
+                                                }}
+                                                className="group relative aspect-square rounded-[32px] overflow-hidden border-4 border-transparent hover:border-primary transition-all shadow-md hover:shadow-xl"
+                                            >
+                                                <img src={image.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                                                    <div className="w-12 h-12 bg-white text-primary rounded-full flex items-center justify-center shadow-2xl">
+                                                        <Check size={24} />
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+
+                                        {/* Link to go to gallery if empty */}
+                                        {galleryImages.length === 0 && (
+                                            <div className="col-span-full py-20 text-center space-y-4">
+                                                <p className="text-slate-300 italic font-bold">Tu galería está vacía.</p>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsGalleryPickerOpen(false);
+                                                        setActiveTab('gallery');
+                                                    }}
+                                                    className="btn-primary"
+                                                >Ir a Galería a subir fotos</button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
 
             {/* EXPEDIENTE DE PEDIDO (MODAL DETALLES) */}
             <AnimatePresence>
-                {selectedOrder && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-8">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedOrder(null)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                            className="bg-white w-full max-w-4xl rounded-[32px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
-                        >
-                            <div className="p-8 max-h-[90vh] overflow-y-auto">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="space-y-4">
-                                        <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.3em] border shadow-sm w-fit ${getStatusStyle(selectedOrder.status)}`}>
-                                            {settings.shippingStatuses.find(s => s.id === selectedOrder.status)?.label || selectedOrder.status}
+                {
+                    selectedOrder && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-8">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedOrder(null)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                                className="bg-white w-full max-w-4xl rounded-[32px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
+                            >
+                                <div className="p-8 max-h-[90vh] overflow-y-auto">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="space-y-4">
+                                            <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.3em] border shadow-sm w-fit ${getStatusStyle(selectedOrder.status)}`}>
+                                                {settings.shippingStatuses.find(s => s.id === selectedOrder.status)?.label || selectedOrder.status}
+                                            </div>
+                                            <h3 className="text-3xl font-black text-slate-900 display-font mt-2 leading-none tracking-tighter">Expediente {selectedOrder.id}</h3>
+                                            <p className="text-slate-400 font-bold text-xs">{new Date(selectedOrder.date).toLocaleString('es-AR')}</p>
                                         </div>
-                                        <h3 className="text-3xl font-black text-slate-900 display-font mt-2 leading-none tracking-tighter">Expediente {selectedOrder.id}</h3>
-                                        <p className="text-slate-400 font-bold text-xs">{new Date(selectedOrder.date).toLocaleString('es-AR')}</p>
-                                    </div>
-                                    <button onClick={() => setSelectedOrder(null)} className="p-2 bg-slate-50 text-slate-300 rounded-[16px] hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"><X size={20} /></button>
-                                </div>
-
-                                <div className="space-y-6">
-                                    {/* DATOS DEL CLIENTE */}
-                                    <div className="p-6 bg-slate-50/50 rounded-[24px] border border-slate-100/50 space-y-4 shadow-inner">
-                                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-2 leading-none">Datos del Cliente</p>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Nombre y Apellido</p>
-                                                <p className="text-xl font-black text-slate-900 truncate">{selectedOrder.customerName} {selectedOrder.customerLastName}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">E-mail</p>
-                                                <p className="text-sm font-bold text-primary truncate">{selectedOrder.customerEmail}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Teléfono</p>
-                                                <p className="text-sm font-bold text-slate-600">{selectedOrder.customerPhone || 'S/D'}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Documento (DNI)</p>
-                                                <p className="text-sm font-bold text-slate-600">{selectedOrder.customerDNI || 'S/D'}</p>
-                                            </div>
-                                            <div className="md:col-span-2 space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Domicilio de Entrega</p>
-                                                <p className="text-sm font-bold text-slate-600">{selectedOrder.customerAddress || 'S/D'}</p>
-                                            </div>
-                                        </div>
+                                        <button onClick={() => setSelectedOrder(null)} className="p-2 bg-slate-50 text-slate-300 rounded-[16px] hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"><X size={20} /></button>
                                     </div>
 
-                                    {/* DATOS DE DESPACHO */}
-                                    <div className="p-6 bg-slate-50/50 rounded-[24px] border border-slate-100/50 space-y-4 shadow-inner">
-                                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-2 leading-none">Datos de Despacho</p>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-white rounded-[12px] shadow-lg border border-slate-50 flex items-center justify-center text-primary">
-                                                    <Truck size={20} />
+                                    <div className="space-y-6">
+                                        {/* DATOS DEL CLIENTE */}
+                                        <div className="p-6 bg-slate-50/50 rounded-[24px] border border-slate-100/50 space-y-4 shadow-inner">
+                                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-2 leading-none">Datos del Cliente</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div className="space-y-1">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Nombre y Apellido</p>
+                                                    <p className="text-xl font-black text-slate-900 truncate">{selectedOrder.customerName} {selectedOrder.customerLastName}</p>
                                                 </div>
-                                                <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Operador Logístico</p>
-                                                    <p className="text-lg font-black text-slate-900">Correo Argentino</p>
+                                                <div className="space-y-1">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">E-mail</p>
+                                                    <p className="text-sm font-bold text-primary truncate">{selectedOrder.customerEmail}</p>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Teléfono</p>
+                                                    <p className="text-sm font-bold text-slate-600">{selectedOrder.customerPhone || 'S/D'}</p>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Documento (DNI)</p>
+                                                    <p className="text-sm font-bold text-slate-600">{selectedOrder.customerDNI || 'S/D'}</p>
+                                                </div>
+                                                <div className="md:col-span-2 space-y-1">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Domicilio de Entrega</p>
+                                                    <p className="text-sm font-bold text-slate-600">{selectedOrder.customerAddress || 'S/D'}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Nro Seguimiento</p>
-                                                <p className="font-mono font-black text-primary text-xl tracking-[0.2em] uppercase">{selectedOrder.trackingNumber || 'PENDIENTE'}</p>
+                                        </div>
+
+                                        {/* DATOS DE DESPACHO */}
+                                        <div className="p-6 bg-slate-50/50 rounded-[24px] border border-slate-100/50 space-y-4 shadow-inner">
+                                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-2 leading-none">Datos de Despacho</p>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-white rounded-[12px] shadow-lg border border-slate-50 flex items-center justify-center text-primary">
+                                                        <Truck size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Operador Logístico</p>
+                                                        <p className="text-lg font-black text-slate-900">Correo Argentino</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Nro Seguimiento</p>
+                                                    <p className="font-mono font-black text-primary text-xl tracking-[0.2em] uppercase">{selectedOrder.trackingNumber || 'PENDIENTE'}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* TABLA DE PRODUCTOS */}
-                                    <div className="glass-card border-slate-100 rounded-[24px] shadow-premium overflow-hidden">
-                                        <table className="w-full text-left text-sm">
-                                            <thead className="bg-[#FBFCFD]">
-                                                <tr>
-                                                    <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-center">Cant.</th>
-                                                    <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Pieza Artística</th>
-                                                    <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Precio</th>
-                                                    <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Subtotal</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-50/50">
-                                                {selectedOrder.items.map((item, idx) => (
-                                                    <tr key={idx} className="hover:bg-slate-50/20 transition-all">
-                                                        <td className="px-6 py-3 font-black text-slate-300 text-center text-base tracking-tighter">{item.quantity}</td>
-                                                        <td className="px-6 py-7 font-black text-slate-800 text-sm uppercase tracking-tight">{item.productName}</td>
-                                                        <td className="px-6 py-3 text-right text-slate-400 font-bold text-[10px]">${item.price.toLocaleString('es-AR')}</td>
-                                                        <td className="px-6 py-3 text-right font-black text-slate-900 text-base tracking-tight">${(item.price * item.quantity).toLocaleString('es-AR')}</td>
+                                        {/* TABLA DE PRODUCTOS */}
+                                        <div className="glass-card border-slate-100 rounded-[24px] shadow-premium overflow-hidden">
+                                            <table className="w-full text-left text-sm">
+                                                <thead className="bg-[#FBFCFD]">
+                                                    <tr>
+                                                        <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-center">Cant.</th>
+                                                        <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Pieza Artística</th>
+                                                        <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Precio</th>
+                                                        <th className="px-6 py-3 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Subtotal</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                            <tfoot>
-                                                <tr className="bg-primary/[0.03]">
-                                                    <td colSpan={3} className="px-8 py-4 text-right font-black text-[9px] uppercase tracking-[0.4em] text-slate-400">Total Facturado</td>
-                                                    <td className="px-8 py-4 text-right font-black text-primary text-2xl tracking-tighter">${selectedOrder.total.toLocaleString('es-AR')}</td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-50/50">
+                                                    {selectedOrder.items.map((item, idx) => (
+                                                        <tr key={idx} className="hover:bg-slate-50/20 transition-all">
+                                                            <td className="px-6 py-3 font-black text-slate-300 text-center text-base tracking-tighter">{item.quantity}</td>
+                                                            <td className="px-6 py-7 font-black text-slate-800 text-sm uppercase tracking-tight">{item.productName}</td>
+                                                            <td className="px-6 py-3 text-right text-slate-400 font-bold text-[10px]">${item.price.toLocaleString('es-AR')}</td>
+                                                            <td className="px-6 py-3 text-right font-black text-slate-900 text-base tracking-tight">${(item.price * item.quantity).toLocaleString('es-AR')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr className="bg-primary/[0.03]">
+                                                        <td colSpan={3} className="px-8 py-4 text-right font-black text-[9px] uppercase tracking-[0.4em] text-slate-400">Total Facturado</td>
+                                                        <td className="px-8 py-4 text-right font-black text-primary text-2xl tracking-tighter">${selectedOrder.total.toLocaleString('es-AR')}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
 
-                                    {/* BOTONES ACCION */}
-                                    <div className="flex justify-end gap-4 pt-4 print:hidden">
-                                        <button
-                                            onClick={() => window.print()}
-                                            className="h-12 px-6 border-2 border-slate-100 rounded-[16px] font-black text-slate-400 uppercase text-[9px] tracking-widest hover:bg-slate-50 hover:text-slate-600 transition-all flex items-center justify-center gap-2 active:scale-95"
-                                        >
-                                            <Save size={16} /> Imprimir
-                                        </button>
-                                        <button onClick={() => setSelectedOrder(null)} className="h-12 px-8 btn-primary uppercase text-[9px] tracking-widest">Cerrar</button>
+                                        {/* BOTONES ACCION */}
+                                        <div className="flex justify-end gap-4 pt-4 print:hidden">
+                                            <button
+                                                onClick={() => window.print()}
+                                                className="h-12 px-6 border-2 border-slate-100 rounded-[16px] font-black text-slate-400 uppercase text-[9px] tracking-widest hover:bg-slate-50 hover:text-slate-600 transition-all flex items-center justify-center gap-2 active:scale-95"
+                                            >
+                                                <Save size={16} /> Imprimir
+                                            </button>
+                                            <button onClick={() => setSelectedOrder(null)} className="h-12 px-8 btn-primary uppercase text-[9px] tracking-widest">Cerrar</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
 
             {/* MODAL HISTORIAL DE CLIENTE */}
             <AnimatePresence>
-                {selectedCustomer && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedCustomer(null)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                            className="bg-white w-full max-w-4xl rounded-[32px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
-                        >
-                            <div className="p-8 max-h-[90vh] overflow-y-auto">
-                                <div className="flex justify-between items-start mb-10">
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-20 h-20 bg-primary/5 rounded-[32px] flex items-center justify-center text-primary font-black text-4xl shadow-inner">
-                                            {selectedCustomer.name[0]}{selectedCustomer.lastName[0]}
+                {
+                    selectedCustomer && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedCustomer(null)} className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl" />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                                className="bg-white w-full max-w-4xl rounded-[32px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] relative z-10 overflow-hidden"
+                            >
+                                <div className="p-8 max-h-[90vh] overflow-y-auto">
+                                    <div className="flex justify-between items-start mb-10">
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-20 h-20 bg-primary/5 rounded-[32px] flex items-center justify-center text-primary font-black text-4xl shadow-inner">
+                                                {selectedCustomer.name[0]}{selectedCustomer.lastName[0]}
+                                            </div>
+                                            <div>
+                                                <h3 className="text-4xl font-black text-slate-900 display-font leading-none tracking-tighter">{selectedCustomer.name} {selectedCustomer.lastName}</h3>
+                                                <p className="text-slate-400 font-bold text-sm mt-1">{selectedCustomer.email} • {selectedCustomer.phone || 'Sin Teléfono'}</p>
+                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{selectedCustomer.docType} {selectedCustomer.docNumber} • {selectedCustomer.address || 'Sin Domicilio'}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="text-4xl font-black text-slate-900 display-font leading-none tracking-tighter">{selectedCustomer.name} {selectedCustomer.lastName}</h3>
-                                            <p className="text-slate-400 font-bold text-sm mt-1">{selectedCustomer.email} • {selectedCustomer.phone || 'Sin Teléfono'}</p>
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{selectedCustomer.docType} {selectedCustomer.docNumber} • {selectedCustomer.address || 'Sin Domicilio'}</p>
-                                        </div>
+                                        <button onClick={() => setSelectedCustomer(null)} className="p-2 bg-slate-50 text-slate-300 rounded-[16px] hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"><X size={20} /></button>
                                     </div>
-                                    <button onClick={() => setSelectedCustomer(null)} className="p-2 bg-slate-50 text-slate-300 rounded-[16px] hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"><X size={20} /></button>
-                                </div>
 
-                                <div className="space-y-6">
-                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-3 leading-none">Historial de Compras</p>
+                                    <div className="space-y-6">
+                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] border-b border-slate-100 pb-3 leading-none">Historial de Compras</p>
 
-                                    <div className="glass-card border-slate-100 rounded-[24px] shadow-premium overflow-hidden">
-                                        <table className="w-full text-left text-sm">
-                                            <thead className="bg-[#FBFCFD]">
-                                                <tr>
-                                                    <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Nro Pedido</th>
-                                                    <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Fecha</th>
-                                                    <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Estado</th>
-                                                    <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Total</th>
-                                                    <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Acción</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-50/50">
-                                                {orders.filter(o => o.customerEmail === selectedCustomer.email).length > 0 ? (
-                                                    orders
-                                                        .filter(o => o.customerEmail === selectedCustomer.email)
-                                                        .map((order, idx) => (
-                                                            <tr key={idx} className="hover:bg-slate-50/20 transition-all">
-                                                                <td className="px-6 py-4 font-black text-slate-800 text-base tracking-tighter">{order.id}</td>
-                                                                <td className="px-6 py-4 text-slate-400 font-bold text-xs">{new Date(order.date).toLocaleDateString('es-AR')}</td>
-                                                                <td className="px-6 py-4">
-                                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${getStatusStyle(order.status)}`}>
-                                                                        {settings.shippingStatuses.find(s => s.id === order.status)?.label || order.status}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="px-6 py-4 text-right font-black text-slate-900 text-base tracking-tight">${order.total.toLocaleString('es-AR')}</td>
-                                                                <td className="px-6 py-4 text-right">
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setSelectedOrder(order);
-                                                                        }}
-                                                                        className="p-2.5 bg-slate-50 text-slate-300 rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
-                                                                    >
-                                                                        <Eye size={16} />
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        ))
-                                                ) : (
+                                        <div className="glass-card border-slate-100 rounded-[24px] shadow-premium overflow-hidden">
+                                            <table className="w-full text-left text-sm">
+                                                <thead className="bg-[#FBFCFD]">
                                                     <tr>
-                                                        <td colSpan={5} className="py-12 text-center text-slate-300 italic text-sm">Este cliente aún no ha realizado pedidos.</td>
+                                                        <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Nro Pedido</th>
+                                                        <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Fecha</th>
+                                                        <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em]">Estado</th>
+                                                        <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Total</th>
+                                                        <th className="px-6 py-4 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] text-right">Acción</th>
                                                     </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-50/50">
+                                                    {orders.filter(o => o.customerEmail === selectedCustomer.email).length > 0 ? (
+                                                        orders
+                                                            .filter(o => o.customerEmail === selectedCustomer.email)
+                                                            .map((order, idx) => (
+                                                                <tr key={idx} className="hover:bg-slate-50/20 transition-all">
+                                                                    <td className="px-6 py-4 font-black text-slate-800 text-base tracking-tighter">{order.id}</td>
+                                                                    <td className="px-6 py-4 text-slate-400 font-bold text-xs">{new Date(order.date).toLocaleDateString('es-AR')}</td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${getStatusStyle(order.status)}`}>
+                                                                            {settings.shippingStatuses.find(s => s.id === order.status)?.label || order.status}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right font-black text-slate-900 text-base tracking-tight">${order.total.toLocaleString('es-AR')}</td>
+                                                                    <td className="px-6 py-4 text-right">
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                setSelectedOrder(order);
+                                                                            }}
+                                                                            className="p-2.5 bg-slate-50 text-slate-300 rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                                                        >
+                                                                            <Eye size={16} />
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan={5} className="py-12 text-center text-slate-300 italic text-sm">Este cliente aún no ha realizado pedidos.</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                    <button
-                                        onClick={() => setSelectedCustomer(null)}
-                                        className="w-full mt-6 py-4 bg-slate-900 text-white rounded-[20px] font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all"
-                                    >
-                                        Volver al Listado
-                                    </button>
+                                        <button
+                                            onClick={() => setSelectedCustomer(null)}
+                                            className="w-full mt-6 py-4 bg-slate-900 text-white rounded-[20px] font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all"
+                                        >
+                                            Volver al Listado
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        </div>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
+        </div >
     );
 };
 

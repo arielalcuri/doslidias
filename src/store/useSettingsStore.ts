@@ -20,6 +20,7 @@ interface Settings {
     bankCBU: string;
     bankAlias: string;
     bankDiscount: number;
+    potSizes: { number: string, price: number }[];
 }
 
 interface SettingsStore {
@@ -55,7 +56,16 @@ const DEFAULT_SETTINGS: Settings = {
     bankHolder: '',
     bankCBU: '',
     bankAlias: '',
-    bankDiscount: 10
+    bankDiscount: 10,
+    potSizes: [
+        { number: 'N° 4', price: 0 },
+        { number: 'N° 6', price: 0 },
+        { number: 'N° 8', price: 0 },
+        { number: 'N° 10', price: 0 },
+        { number: 'N° 12', price: 0 },
+        { number: 'N° 14', price: 0 },
+        { number: 'N° 16', price: 0 }
+    ]
 };
 
 export const useSettingsStore = create<SettingsStore>()(

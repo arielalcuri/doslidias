@@ -72,7 +72,8 @@ export const useSettingsStore = create<SettingsStore>()(
                     .single();
 
                 if (data && !error) {
-                    set({ settings: data.data });
+                    // Combinar con los valores por defecto para asegurar que nuevos campos (como potNumbers) existan
+                    set({ settings: { ...DEFAULT_SETTINGS, ...data.data } });
                 }
             },
             updateSettings: async (newSettings) => {

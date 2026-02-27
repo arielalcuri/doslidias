@@ -72,7 +72,8 @@ const AdminPanel: React.FC = () => {
         price: 0,
         category: 'Macetas',
         description: '',
-        image: ''
+        image: '',
+        variants: []
     });
 
     const [tempSettings, setTempSettings] = useState(settings);
@@ -132,7 +133,7 @@ const AdminPanel: React.FC = () => {
             } else {
                 await addProduct(formData);
             }
-            setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '' });
+            setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', variants: [] });
             setIsAdding(false);
             alert('Producto guardado correctamente');
         } catch (error) {
@@ -158,7 +159,8 @@ const AdminPanel: React.FC = () => {
             price: product.price,
             category: product.category,
             description: product.description,
-            image: product.image || ''
+            image: product.image || '',
+            variants: product.variants || []
         });
         setIsAdding(true);
     };
@@ -166,7 +168,7 @@ const AdminPanel: React.FC = () => {
     const cancelForm = () => {
         setIsAdding(false);
         setEditingId(null);
-        setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '' });
+        setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', variants: [] });
     };
 
     const filteredOrders = orders.filter(o =>
@@ -378,30 +380,73 @@ const AdminPanel: React.FC = () => {
                                                     />
                                                 </FormGroup>
 
-                                                <div className="grid grid-cols-2 gap-8">
-                                                    <FormGroup label="N° de Maceta (Referencia)">
-                                                        <select
-                                                            className="admin-input"
-                                                            value={formData.name.split(' - ')[1] || ''}
-                                                            onChange={e => {
-                                                                const baseName = formData.name.split(' - ')[0] || formData.name;
-                                                                setFormData({ ...formData, name: `${baseName} - ${e.target.value}` });
-                                                            }}
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Variantes de Tamaño y Precio</label>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setFormData({ ...formData, variants: [...(formData.variants || []), { size: '', price: 0 }] })}
+                                                            className="text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:opacity-70 transition-opacity"
                                                         >
-                                                            <option value="">Seleccionar N°...</option>
-                                                            {settings.potNumbers?.map(n => (
-                                                                <option key={n} value={n}>{n}</option>
-                                                            ))}
-                                                        </select>
-                                                    </FormGroup>
-                                                    <FormGroup label="Precio Final ($)">
-                                                        <input
-                                                            required type="number"
-                                                            className="admin-input"
-                                                            value={formData.price}
-                                                            onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-                                                        />
-                                                    </FormGroup>
+                                                            <Plus size={14} /> Agregar Variante
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        {formData.variants?.map((v, i) => (
+                                                            <div key={i} className="flex gap-3 items-center animate-in fade-in slide-in-from-left-2 transition-all">
+                                                                <select
+                                                                    className="admin-input flex-[2]"
+                                                                    value={v.size}
+                                                                    onChange={e => {
+                                                                        const vrs = [...(formData.variants || [])];
+                                                                        vrs[i].size = e.target.value;
+                                                                        setFormData({ ...formData, variants: vrs });
+                                                                    }}
+                                                                >
+                                                                    <option value="">Seleccionar N°...</option>
+                                                                    {settings.potNumbers?.map(n => (
+                                                                        <option key={n} value={n}>{n}</option>
+                                                                    ))}
+                                                                </select>
+                                                                <div className="relative flex-1">
+                                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-xs">$</span>
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="Precio"
+                                                                        className="admin-input pl-7"
+                                                                        value={v.price}
+                                                                        onChange={e => {
+                                                                            const vrs = [...(formData.variants || [])];
+                                                                            vrs[i].price = Number(e.target.value);
+                                                                            setFormData({ ...formData, variants: vrs });
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const vrs = formData.variants?.filter((_, idx) => idx !== i);
+                                                                        setFormData({ ...formData, variants: vrs });
+                                                                    }}
+                                                                    className="p-3 text-red-400 hover:bg-red-50 rounded-xl transition-colors"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+
+                                                        {(formData.variants?.length === 0) && (
+                                                            <FormGroup label="Precio Único ($)">
+                                                                <input
+                                                                    required type="number"
+                                                                    className="admin-input"
+                                                                    value={formData.price}
+                                                                    onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
+                                                                />
+                                                            </FormGroup>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 <FormGroup label="Colección / Categoría">
@@ -504,7 +549,15 @@ const AdminPanel: React.FC = () => {
                                                         </span>
                                                     </td>
                                                     <td className="font-black text-primary text-xl tracking-tight">
-                                                        ${product.price.toLocaleString('es-AR')}
+                                                        {product.variants && product.variants.length > 0 ? (
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black leading-none mb-1">P. Desde</span>
+                                                                ${Math.min(...product.variants.map(v => v.price)).toLocaleString('es-AR')}
+                                                                <span className="text-[9px] text-primary/50 font-black mt-1">({product.variants.length} variantes)</span>
+                                                            </div>
+                                                        ) : (
+                                                            `$${product.price.toLocaleString('es-AR')}`
+                                                        )}
                                                     </td>
                                                     <td className="text-right">
                                                         <div className="flex justify-end gap-3">

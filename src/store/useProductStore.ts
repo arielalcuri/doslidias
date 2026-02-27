@@ -9,6 +9,7 @@ export interface Product {
     category: string;
     description: string;
     image: string;
+    variants?: { size: string, price: number }[];
 }
 
 interface ProductStore {

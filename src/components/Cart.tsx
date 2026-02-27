@@ -66,7 +66,7 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                                             <div className="flex justify-between mb-1">
                                                 <h4 className="font-bold text-sm text-text-main">{item.product.name}</h4>
                                                 <button
-                                                    onClick={() => onUpdateQuantity(item.product.id, -item.quantity)}
+                                                    onClick={() => onUpdateQuantity(item.product.name, -item.quantity)}
                                                     className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                                                 >
                                                     <Trash2 size={16} />
@@ -77,14 +77,14 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                                             <div className="mt-auto flex justify-between items-center">
                                                 <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border">
                                                     <button
-                                                        onClick={() => onUpdateQuantity(item.product.id, -1)}
+                                                        onClick={() => onUpdateQuantity(item.product.name, -1)}
                                                         className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-md transition-colors"
                                                     >
                                                         <Minus size={14} />
                                                     </button>
                                                     <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
                                                     <button
-                                                        onClick={() => onUpdateQuantity(item.product.id, 1)}
+                                                        onClick={() => onUpdateQuantity(item.product.name, 1)}
                                                         className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-md transition-colors"
                                                     >
                                                         <Plus size={14} />

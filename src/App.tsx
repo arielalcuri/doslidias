@@ -50,10 +50,10 @@ function App() {
             return;
         }
         setCartItems(prev => {
-            const existing = prev.find(item => item.product.id === product.id);
+            const existing = prev.find(item => item.product.name === product.name);
             if (existing) {
                 return prev.map(item =>
-                    item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    item.product.name === product.name ? { ...item, quantity: item.quantity + 1 } : item
                 );
             }
             return [...prev, { product, quantity: 1 }];
@@ -236,9 +236,9 @@ function App() {
                 isOpen={isCartOpen}
                 onClose={() => setIsCartOpen(false)}
                 items={cartItems}
-                onUpdateQuantity={(id, delta) => {
+                onUpdateQuantity={(name, delta) => {
                     setCartItems(prev => prev.map(item => {
-                        if (item.product.id === id) {
+                        if (item.product.name === name) {
                             const newQty = Math.max(0, item.quantity + delta);
                             return { ...item, quantity: newQty };
                         }

@@ -136,9 +136,9 @@ const AdminPanel: React.FC = () => {
             setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', variants: [] });
             setIsAdding(false);
             alert('Producto guardado correctamente');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving product:', error);
-            alert('Error al guardar el producto');
+            alert(`Error al guardar: ${error.message || 'Verifica que la base de datos tenga la columna "variants"'}`);
         }
     };
 
@@ -963,15 +963,23 @@ const AdminPanel: React.FC = () => {
                                                 <p className="text-sm text-slate-400 font-medium mt-1">Gestione los tamaños disponibles para sus publicaciones.</p>
                                             </div>
                                         </div>
-                                        <button
-                                            onClick={() => {
-                                                const num = prompt('Nuevo Número (ej: N° 32):');
-                                                if (num) setTempSettings({ ...tempSettings, potNumbers: [...(tempSettings.potNumbers || []), num] });
-                                            }}
-                                            className="btn-secondary py-3 text-[10px]"
-                                        >
-                                            <Plus size={16} /> Agregar Número
-                                        </button>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={handleSaveSettings}
+                                                className="btn-primary py-3 text-[10px] bg-amber-600 shadow-amber-600/20"
+                                            >
+                                                <Save size={16} /> Guardar Lista
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const num = prompt('Nuevo Número (ej: N° 32):');
+                                                    if (num) setTempSettings({ ...tempSettings, potNumbers: [...(tempSettings.potNumbers || []), num] });
+                                                }}
+                                                className="btn-secondary py-3 text-[10px]"
+                                            >
+                                                <Plus size={16} /> Agregar Número
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-4">

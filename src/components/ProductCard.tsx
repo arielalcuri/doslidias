@@ -18,6 +18,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         ? selectedVariant.price
         : (hasVariants ? Math.min(...validVariants.map(v => v.price)) : (product.price || 0));
 
+    if (priceToDisplay === Infinity) return null; // Safety check
+
     const handleAdd = () => {
         if (hasVariants && !selectedVariant) {
             alert('Por favor, selecciona un tamaño de maceta antes de añadir al carrito.');
@@ -72,8 +74,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                                     key={i}
                                     onClick={() => setSelectedVariant(v)}
                                     className={`px-4 py-2 rounded-2xl text-[10px] font-black transition-all border-2 ${selectedVariant?.size === v.size
-                                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20 -translate-y-0.5'
-                                            : 'bg-white text-slate-400 border-slate-50 hover:border-primary/20 hover:bg-slate-50'
+                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20 -translate-y-0.5'
+                                        : 'bg-white text-slate-400 border-slate-50 hover:border-primary/20 hover:bg-slate-50'
                                         }`}
                                 >
                                     {v.size}
@@ -99,8 +101,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                     <button
                         onClick={handleAdd}
                         className={`w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-500 ${hasVariants && !selectedVariant
-                                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                : 'bg-primary text-white hover:scale-110 active:scale-90 shadow-primary/20'
+                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            : 'bg-primary text-white hover:scale-110 active:scale-90 shadow-primary/20'
                             }`}
                         title={hasVariants && !selectedVariant ? 'Selecciona un tamaño' : 'Agregar al carrito'}
                     >

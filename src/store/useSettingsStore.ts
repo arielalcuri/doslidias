@@ -79,13 +79,12 @@ export const useSettingsStore = create<SettingsStore>()(
             updateSettings: async (newSettings) => {
                 const { error } = await supabase
                     .from('settings')
-                    .update({ data: newSettings })
-                    .eq('id', 'current');
+                    .upsert({ id: 'current', data: newSettings });
 
                 if (!error) {
                     set({ settings: newSettings });
                 } else {
-                    console.error('Error updating settings in Supabase:', error);
+                    console.error('Error saving settings:', error);
                     throw error;
                 }
             },

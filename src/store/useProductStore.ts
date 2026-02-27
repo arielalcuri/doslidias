@@ -40,7 +40,8 @@ export const useProductStore = create<ProductStore>()(
                     .insert([product])
                     .select();
 
-                if (data && !error) {
+                if (error) throw error;
+                if (data) {
                     set((state) => ({ products: [data[0], ...state.products] }));
                 }
             },
@@ -50,11 +51,10 @@ export const useProductStore = create<ProductStore>()(
                     .update(product)
                     .eq('id', id);
 
-                if (!error) {
-                    set((state) => ({
-                        products: state.products.map(p => p.id === id ? { ...product, id } : p)
-                    }));
-                }
+                if (error) throw error;
+                set((state) => ({
+                    products: state.products.map(p => p.id === id ? { ...product, id } : p)
+                }));
             },
             deleteProduct: async (id) => {
                 const { error } = await supabase
@@ -62,11 +62,10 @@ export const useProductStore = create<ProductStore>()(
                     .delete()
                     .eq('id', id);
 
-                if (!error) {
-                    set((state) => ({
-                        products: state.products.filter(p => p.id !== id)
-                    }));
-                }
+                if (error) throw error;
+                set((state) => ({
+                    products: state.products.filter(p => p.id !== id)
+                }));
             },
         }),
         { name: 'dos-lidias-products-v2' }

@@ -1568,8 +1568,8 @@ const AdminPanel: React.FC = () => {
 };
 
 const FormGroup: React.FC<{ label: string, children: React.ReactNode }> = ({ label, children }) => (
-    <div className="flex flex-col gap-4">
-        <label className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 leading-none">{label}</label>
+    <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">{label}</label>
         {children}
     </div>
 );

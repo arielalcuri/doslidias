@@ -9,11 +9,22 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
-    const [selectedVariant, setSelectedVariant] = React.useState(
-        product.variants && product.variants.length > 0 ? product.variants[0] : null
-    );
+    const [selectedVariant, setSelectedVariant] = React.useState<{ size: string, price: number } | null>(null);
 
-    const priceToDisplay = selectedVariant ? selectedVariant.price : product.price;
+    const hasVariants = product.variants && product.variants.length > 0;
+    const priceToDisplay = selectedVariant ? selectedVariant.price : (hasVariants ? Math.min(...product.variants!.map(v => v.price)) : product.price);
+
+    const handleAdd = () => {
+        if (hasVariants && !selectedVariant) {
+            alert('Por favor, selecciona un tamaño de maceta antes de agregar al carrito.');
+            return;
+        }
+        onAddToCart({
+            ...product,
+            price: priceToDisplay,
+            name: selectedVariant ? `${product.name} - ${selectedVariant.size}` : product.name
+        });
+    };
 
     return (
         <motion.div
@@ -29,11 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <button
-                    onClick={() => onAddToCart({
-                        ...product,
-                        price: priceToDisplay,
-                        name: selectedVariant ? `${product.name} - ${selectedVariant.size}` : product.name
-                    })}
+                    onClick={handleAdd}
                     className="absolute bottom-4 right-4 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-primary scale-0 group-hover:scale-100 transition-transform duration-300 hover:bg-primary hover:text-white"
                 >
                     <Plus size={24} />
@@ -46,11 +53,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                 </span>
                 <h3 className="text-xl mb-2 text-text-main group-hover:text-primary transition-colors">{product.name}</h3>
 
-                {product.variants && product.variants.length > 0 && (
+                {hasVariants && (
                     <div className="mb-4 space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Seleccionar Tamaño</label>
                         <div className="flex flex-wrap gap-2">
-                            {product.variants.map((v, i) => (
+                            {product.variants!.map((v, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setSelectedVariant(v)}
@@ -69,15 +76,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                 <p className="text-text-muted text-sm line-clamp-2 mb-4 leading-relaxed italic">
                     {product.description}
                 </p>
+
                 <div className="mt-auto flex justify-between items-center bg-slate-50/50 p-4 -mx-2 -mb-2 rounded-2xl">
-                    <span className="text-2xl font-bold font-serif text-slate-800">${priceToDisplay.toLocaleString('es-AR')}</span>
+                    <div className="flex flex-col">
+                        {!selectedVariant && hasVariants && (
+                            <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Precio desde</span>
+                        )}
+                        <span className={`text-2xl font-bold font-serif transition-colors ${!selectedVariant && hasVariants ? 'text-slate-400' : 'text-slate-800'}`}>
+                            ${priceToDisplay.toLocaleString('es-AR')}
+                        </span>
+                    </div>
                     <button
-                        onClick={() => onAddToCart({
-                            ...product,
-                            price: priceToDisplay,
-                            name: selectedVariant ? `${product.name} - ${selectedVariant.size}` : product.name
-                        })}
-                        className="p-3 text-white bg-primary rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
+                        onClick={handleAdd}
+                        className={`p-3 text-white rounded-full shadow-lg transition-all ${hasVariants && !selectedVariant
+                                ? 'bg-slate-200 cursor-not-allowed'
+                                : 'bg-primary hover:scale-105 active:scale-95'
+                            }`}
                     >
                         <ShoppingCart size={20} />
                     </button>

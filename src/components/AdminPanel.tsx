@@ -396,7 +396,7 @@ const AdminPanel: React.FC = () => {
                                                         {formData.variants?.map((v, i) => (
                                                             <div key={i} className="flex gap-3 items-center animate-in fade-in slide-in-from-left-2 transition-all">
                                                                 <select
-                                                                    className="admin-input flex-[2]"
+                                                                    className="admin-input flex-1 min-w-[100px]"
                                                                     value={v.size}
                                                                     onChange={e => {
                                                                         const vrs = [...(formData.variants || [])];
@@ -404,17 +404,17 @@ const AdminPanel: React.FC = () => {
                                                                         setFormData({ ...formData, variants: vrs });
                                                                     }}
                                                                 >
-                                                                    <option value="">Seleccionar N°...</option>
+                                                                    <option value="">N°...</option>
                                                                     {settings.potNumbers?.map(n => (
                                                                         <option key={n} value={n}>{n}</option>
                                                                     ))}
                                                                 </select>
                                                                 <div className="relative flex-1">
-                                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-xs">$</span>
+                                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-[10px]">$</span>
                                                                     <input
                                                                         type="number"
                                                                         placeholder="Precio"
-                                                                        className="admin-input pl-7"
+                                                                        className="admin-input pl-6"
                                                                         value={v.price}
                                                                         onChange={e => {
                                                                             const vrs = [...(formData.variants || [])];
@@ -429,9 +429,9 @@ const AdminPanel: React.FC = () => {
                                                                         const vrs = formData.variants?.filter((_, idx) => idx !== i);
                                                                         setFormData({ ...formData, variants: vrs });
                                                                     }}
-                                                                    className="p-3 text-red-400 hover:bg-red-50 rounded-xl transition-colors"
+                                                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                                                                 >
-                                                                    <Trash2 size={16} />
+                                                                    <Trash2 size={14} />
                                                                 </button>
                                                             </div>
                                                         ))}
@@ -524,7 +524,6 @@ const AdminPanel: React.FC = () => {
                                         <thead>
                                             <tr>
                                                 <th>Pieza / Diseño</th>
-                                                <th>Categoría</th>
                                                 <th>Precio</th>
                                                 <th className="text-right">Acciones</th>
                                             </tr>
@@ -532,7 +531,7 @@ const AdminPanel: React.FC = () => {
                                         <tbody className="divide-y divide-slate-50/50">
                                             {products.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={4} className="py-20 text-center">
+                                                    <td colSpan={3} className="py-20 text-center">
                                                         <div className="flex flex-col items-center opacity-20">
                                                             <Box size={48} className="mb-4" />
                                                             <p className="font-black uppercase tracking-[0.2em] text-xs">No hay piezas cargadas todavía</p>
@@ -549,23 +548,22 @@ const AdminPanel: React.FC = () => {
                                                                 </div>
                                                                 <div className="min-w-0">
                                                                     <p className="font-extrabold text-slate-800 text-sm leading-tight truncate">{product.name}</p>
-                                                                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1 truncate">{product.category}</p>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest whitespace-nowrap">
+                                                                            {product.category}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <span className="bg-slate-100/50 border border-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                                                                {product.category}
-                                                            </span>
-                                                        </td>
-                                                        <td className="font-black text-primary text-base tracking-tight whitespace-nowrap">
+                                                        <td className="font-black text-primary text-base tracking-tight whitespace-nowrap min-w-[120px]">
                                                             {product.variants && product.variants.length > 0 ? (
                                                                 <div className="flex flex-col">
-                                                                    <span className="text-[8px] text-slate-400 uppercase tracking-widest font-black leading-none mb-0.5">P. Desde</span>
-                                                                    ${Math.min(...product.variants.filter(v => typeof v.price === 'number').map(v => v.price)).toLocaleString('es-AR')}
+                                                                    <span className="text-[8px] text-slate-400 uppercase tracking-widest font-black leading-none mb-0.5">Precio desde</span>
+                                                                    <span className="text-sm">${Math.min(...product.variants.filter(v => typeof v.price === 'number').map(v => v.price)).toLocaleString('es-AR')}</span>
                                                                 </div>
                                                             ) : (
-                                                                `$${(product.price || 0).toLocaleString('es-AR')}`
+                                                                <span className="text-sm">${(product.price || 0).toLocaleString('es-AR')}</span>
                                                             )}
                                                         </td>
                                                         <td className="text-right">

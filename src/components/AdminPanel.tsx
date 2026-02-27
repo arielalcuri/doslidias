@@ -79,7 +79,20 @@ const AdminPanel: React.FC = () => {
 
     // Sincronizar los ajustes temporales cuando se cargan desde la base de datos
     React.useEffect(() => {
-        setTempSettings(settings);
+        const DEFAULT_POT_SIZES = [
+            { number: 'N° 4', price: 0 },
+            { number: 'N° 6', price: 0 },
+            { number: 'N° 8', price: 0 },
+            { number: 'N° 10', price: 0 },
+            { number: 'N° 12', price: 0 },
+            { number: 'N° 14', price: 0 },
+            { number: 'N° 16', price: 0 }
+        ];
+
+        setTempSettings({
+            ...settings,
+            potSizes: settings.potSizes && settings.potSizes.length > 0 ? settings.potSizes : DEFAULT_POT_SIZES
+        });
     }, [settings]);
 
     const [loginUser, setLoginUser] = useState('');

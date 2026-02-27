@@ -227,7 +227,7 @@ function App() {
                     </div>
                     <div className="text-xs text-text-muted/60 uppercase tracking-widest pt-8 border-t w-full flex flex-col md:flex-row justify-between items-center gap-4">
                         <span>&copy; {new Date().getFullYear()} Dos Lidias. Todos los derechos reservados.</span>
-                        <span className="text-[9px] opacity-30 font-black">STABLE RELEASE v1.0.2</span>
+                        <span className="text-[9px] opacity-30 font-black">STABLE RELEASE v1.0.3 - MULTI-SYNC</span>
                     </div>
                 </div>
             </footer>

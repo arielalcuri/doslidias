@@ -331,10 +331,10 @@ const AdminPanel: React.FC = () => {
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-4">
                                             <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Piezas y Obras</h2>
-                                            <div className={`mt-2 px-3 py-1 rounded-full flex items-center gap-2 border ${import.meta.env.VITE_SUPABASE_URL ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-600'}`}>
-                                                <div className={`w-2 h-2 rounded-full ${import.meta.env.VITE_SUPABASE_URL ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                            <div className={`mt-2 px-4 py-2 rounded-full flex items-center gap-2 border shadow-lg ${import.meta.env.VITE_SUPABASE_URL ? 'bg-green-600 text-white border-green-700' : 'bg-red-600 text-white border-red-700'}`}>
+                                                <div className={`w-2.5 h-2.5 rounded-full ${import.meta.env.VITE_SUPABASE_URL ? 'bg-white animate-pulse' : 'bg-white'}`} />
                                                 <span className="text-[10px] font-black uppercase tracking-widest">
-                                                    {import.meta.env.VITE_SUPABASE_URL ? 'Sincronización Activa' : 'Error: No Conectado'}
+                                                    {import.meta.env.VITE_SUPABASE_URL ? 'BBDD Conectada' : 'Error de Conexión'}
                                                 </span>
                                             </div>
                                         </div>

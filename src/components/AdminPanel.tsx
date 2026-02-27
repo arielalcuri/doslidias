@@ -79,19 +79,11 @@ const AdminPanel: React.FC = () => {
 
     // Sincronizar los ajustes temporales cuando se cargan desde la base de datos
     React.useEffect(() => {
-        const DEFAULT_POT_SIZES = [
-            { number: 'N° 4', price: 0 },
-            { number: 'N° 6', price: 0 },
-            { number: 'N° 8', price: 0 },
-            { number: 'N° 10', price: 0 },
-            { number: 'N° 12', price: 0 },
-            { number: 'N° 14', price: 0 },
-            { number: 'N° 16', price: 0 }
-        ];
+        const DEFAULT_POT_NUMBERS = ['N° 4', 'N° 6', 'N° 8', 'N° 10', 'N° 12', 'N° 14', 'N° 16', 'N° 18', 'N° 20', 'N° 22', 'N° 24', 'N° 26', 'N° 28', 'N° 30'];
 
         setTempSettings({
             ...settings,
-            potSizes: settings.potSizes && settings.potSizes.length > 0 ? settings.potSizes : DEFAULT_POT_SIZES
+            potNumbers: settings.potNumbers && settings.potNumbers.length > 0 ? settings.potNumbers : DEFAULT_POT_NUMBERS
         });
     }, [settings]);
 
@@ -390,14 +382,15 @@ const AdminPanel: React.FC = () => {
                                                     <FormGroup label="N° de Maceta (Referencia)">
                                                         <select
                                                             className="admin-input"
+                                                            value={formData.name.split(' - ')[1] || ''}
                                                             onChange={e => {
-                                                                const size = settings.potSizes?.find(s => s.number === e.target.value);
-                                                                if (size) setFormData({ ...formData, price: size.price });
+                                                                const baseName = formData.name.split(' - ')[0] || formData.name;
+                                                                setFormData({ ...formData, name: `${baseName} - ${e.target.value}` });
                                                             }}
                                                         >
                                                             <option value="">Seleccionar N°...</option>
-                                                            {settings.potSizes?.map(s => (
-                                                                <option key={s.number} value={s.number}>{s.number} - ${s.price.toLocaleString('es-AR')}</option>
+                                                            {settings.potNumbers?.map(n => (
+                                                                <option key={n} value={n}>{n}</option>
                                                             ))}
                                                         </select>
                                                     </FormGroup>
@@ -895,7 +888,7 @@ const AdminPanel: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* POT SIZE PRICING */}
+                                {/* POT NUMBERS MANAGEMENT */}
                                 <div className="glass-card p-12 space-y-12">
                                     <div className="flex justify-between items-center border-b border-slate-50 pb-10">
                                         <div className="flex items-center gap-5">
@@ -903,29 +896,34 @@ const AdminPanel: React.FC = () => {
                                                 <Database size={32} />
                                             </div>
                                             <div>
-                                                <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight leading-none">Precios por Tamaño (Paramétricas)</h3>
-                                                <p className="text-sm text-slate-400 font-medium mt-1">Configura los precios base según el número de maceta.</p>
+                                                <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight leading-none">Listado de Números de Maceta</h3>
+                                                <p className="text-sm text-slate-400 font-medium mt-1">Gestione los tamaños disponibles para sus publicaciones.</p>
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => {
+                                                const num = prompt('Nuevo Número (ej: N° 32):');
+                                                if (num) setTempSettings({ ...tempSettings, potNumbers: [...(tempSettings.potNumbers || []), num] });
+                                            }}
+                                            className="btn-secondary py-3 text-[10px]"
+                                        >
+                                            <Plus size={16} /> Agregar Número
+                                        </button>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                                        {tempSettings.potSizes?.map((size, i) => (
-                                            <div key={size.number} className="p-8 bg-slate-50 shadow-inner rounded-[32px] border border-slate-100 space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{size.number}</p>
-                                                <div className="relative">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-black">$</span>
-                                                    <input
-                                                        type="number"
-                                                        className="w-full pl-10 pr-6 py-4 bg-white rounded-2xl border border-slate-50 font-black text-slate-800 outline-none focus:border-primary transition-all shadow-sm"
-                                                        value={size.price}
-                                                        onChange={e => {
-                                                            const newSizes = [...tempSettings.potSizes];
-                                                            newSizes[i].price = Number(e.target.value);
-                                                            setTempSettings({ ...tempSettings, potSizes: newSizes });
-                                                        }}
-                                                    />
-                                                </div>
+                                    <div className="flex flex-wrap gap-4">
+                                        {tempSettings.potNumbers?.map((num, i) => (
+                                            <div key={i} className="group relative px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4 hover:bg-white hover:shadow-md transition-all">
+                                                <span className="font-black text-slate-700">{num}</span>
+                                                <button
+                                                    onClick={() => {
+                                                        const newNums = tempSettings.potNumbers.filter((_, idx) => idx !== i);
+                                                        setTempSettings({ ...tempSettings, potNumbers: newNums });
+                                                    }}
+                                                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         ))}
                                     </div>

@@ -20,7 +20,7 @@ interface Settings {
     bankCBU: string;
     bankAlias: string;
     bankDiscount: number;
-    potSizes: { number: string, price: number }[];
+    potNumbers: string[];
 }
 
 interface SettingsStore {
@@ -57,15 +57,7 @@ const DEFAULT_SETTINGS: Settings = {
     bankCBU: '',
     bankAlias: '',
     bankDiscount: 10,
-    potSizes: [
-        { number: 'N° 4', price: 0 },
-        { number: 'N° 6', price: 0 },
-        { number: 'N° 8', price: 0 },
-        { number: 'N° 10', price: 0 },
-        { number: 'N° 12', price: 0 },
-        { number: 'N° 14', price: 0 },
-        { number: 'N° 16', price: 0 }
-    ]
+    potNumbers: ['N° 4', 'N° 6', 'N° 8', 'N° 10', 'N° 12', 'N° 14', 'N° 16', 'N° 18', 'N° 20', 'N° 22', 'N° 24', 'N° 26', 'N° 28', 'N° 30']
 };
 
 export const useSettingsStore = create<SettingsStore>()(

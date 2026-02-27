@@ -519,66 +519,76 @@ const AdminPanel: React.FC = () => {
                                     </motion.div>
                                 )}
 
-                                <div className="glass-card shadow-premium border-none">
+                                <div className="glass-card shadow-premium border-none overflow-x-auto scrollbar-thin">
                                     <table className="admin-table">
                                         <thead>
                                             <tr>
                                                 <th>Pieza / Diseño</th>
                                                 <th>Categoría</th>
-                                                <th>Precio Unitario</th>
+                                                <th>Precio</th>
                                                 <th className="text-right">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50">
-                                            {products.map(product => (
-                                                <tr key={product.id} className="group hover:bg-slate-50/30 transition-all">
-                                                    <td>
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-16 h-16 rounded-[24px] overflow-hidden shadow-sm bg-slate-100 border border-slate-50">
-                                                                <img src={product.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-extrabold text-slate-800 text-lg leading-tight">{product.name}</p>
-                                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{product.category}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span className="bg-slate-100/50 border border-slate-100 text-slate-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                                            {product.category}
-                                                        </span>
-                                                    </td>
-                                                    <td className="font-black text-primary text-xl tracking-tight">
-                                                        {product.variants && product.variants.length > 0 ? (
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black leading-none mb-1">P. Desde</span>
-                                                                ${Math.min(...product.variants.map(v => v.price)).toLocaleString('es-AR')}
-                                                                <span className="text-[9px] text-primary/50 font-black mt-1">({product.variants.length} variantes)</span>
-                                                            </div>
-                                                        ) : (
-                                                            `$${product.price.toLocaleString('es-AR')}`
-                                                        )}
-                                                    </td>
-                                                    <td className="text-right">
-                                                        <div className="flex justify-end gap-3">
-                                                            <button
-                                                                onClick={() => startEdit(product)}
-                                                                className="p-3.5 bg-slate-50/80 text-slate-300 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all"
-                                                                title="Editar"
-                                                            >
-                                                                <Edit2 size={20} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => { if (confirm('¿Eliminar esta pieza permanentemente?')) deleteProduct(product.id) }}
-                                                                className="p-3.5 bg-slate-50/80 text-slate-300 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
-                                                                title="Eliminar"
-                                                            >
-                                                                <Trash2 size={20} />
-                                                            </button>
+                                            {products.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={4} className="py-20 text-center">
+                                                        <div className="flex flex-col items-center opacity-20">
+                                                            <Box size={48} className="mb-4" />
+                                                            <p className="font-black uppercase tracking-[0.2em] text-xs">No hay piezas cargadas todavía</p>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            ) : (
+                                                products.map(product => (
+                                                    <tr key={product.id} className="group hover:bg-slate-50/30 transition-all">
+                                                        <td>
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-sm bg-slate-100 border border-slate-50 shrink-0">
+                                                                    <img src={product.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="font-extrabold text-slate-800 text-sm leading-tight truncate">{product.name}</p>
+                                                                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1 truncate">{product.category}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className="bg-slate-100/50 border border-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+                                                                {product.category}
+                                                            </span>
+                                                        </td>
+                                                        <td className="font-black text-primary text-base tracking-tight whitespace-nowrap">
+                                                            {product.variants && product.variants.length > 0 ? (
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[8px] text-slate-400 uppercase tracking-widest font-black leading-none mb-0.5">P. Desde</span>
+                                                                    ${Math.min(...product.variants.filter(v => typeof v.price === 'number').map(v => v.price)).toLocaleString('es-AR')}
+                                                                </div>
+                                                            ) : (
+                                                                `$${(product.price || 0).toLocaleString('es-AR')}`
+                                                            )}
+                                                        </td>
+                                                        <td className="text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <button
+                                                                    onClick={() => startEdit(product)}
+                                                                    className="p-2.5 bg-slate-50 text-slate-300 rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                                                    title="Editar"
+                                                                >
+                                                                    <Edit2 size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => { if (confirm('¿Eliminar esta pieza permanentemente?')) deleteProduct(product.id) }}
+                                                                    className="p-2.5 bg-slate-50 text-slate-300 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>

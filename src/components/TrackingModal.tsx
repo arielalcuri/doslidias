@@ -4,6 +4,8 @@ import { X, Search, Truck, Box, CheckCircle2, Clock, ExternalLink, Package, MapP
 import { useOrderStore } from '../store/useOrderStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 
+import { supabase } from '../lib/supabase';
+
 interface TrackingModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -13,14 +15,51 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
     const [orderId, setOrderId] = useState('');
     const [foundOrder, setFoundOrder] = useState<any>(null);
     const [hasSearched, setHasSearched] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { orders } = useOrderStore();
     const { settings } = useSettingsStore();
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        const order = orders.find(o => o.id.toLowerCase() === orderId.toLowerCase());
-        setFoundOrder(order || null);
-        setHasSearched(true);
+        setIsLoading(true);
+        setHasSearched(false);
+
+        try {
+            // Primero intentamos buscar en Supabase directamente para tener el dato más fresco
+            const { data, error } = await supabase
+                .from('orders')
+                .select('*')
+                .eq('id', orderId.toUpperCase())
+                .single();
+
+            if (data && !error) {
+                setFoundOrder({
+                    id: data.id,
+                    customerName: data.customer_name,
+                    customerLastName: data.customer_last_name,
+                    customerEmail: data.customer_email,
+                    customerPhone: data.customer_phone,
+                    customerAddress: data.customer_address,
+                    customerDNI: data.customer_dni,
+                    date: data.date,
+                    items: data.items,
+                    total: data.total,
+                    status: data.status,
+                    trackingNumber: data.tracking_number
+                });
+            } else {
+                // Si no está en Supabase, buscamos en el store local (por si es un pedido viejo)
+                const localOrder = orders.find(o => o.id.toLowerCase() === orderId.toLowerCase());
+                setFoundOrder(localOrder || null);
+            }
+        } catch (err) {
+            console.error("Error searching order:", err);
+            const localOrder = orders.find(o => o.id.toLowerCase() === orderId.toLowerCase());
+            setFoundOrder(localOrder || null);
+        } finally {
+            setHasSearched(true);
+            setIsLoading(false);
+        }
     };
 
     const getStatusIcon = (statusId: string) => {
@@ -71,15 +110,27 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
                                             value={orderId}
                                             onChange={e => setOrderId(e.target.value)}
                                         />
-                                        <button className="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 leading-none">
-                                            <Search size={18} />
+                                        <button
+                                            disabled={isLoading}
+                                            className="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 leading-none disabled:opacity-50"
+                                        >
+                                            {isLoading ? (
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <Search size={18} />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
                             </form>
 
                             <div className="min-h-[180px] flex flex-col items-center justify-center">
-                                {!hasSearched ? (
+                                {isLoading ? (
+                                    <div className="text-center py-10">
+                                        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                                        <p className="text-sm font-bold text-slate-400 italic">Buscando en Correo Lidias...</p>
+                                    </div>
+                                ) : !hasSearched ? (
                                     <div className="text-center opacity-40 py-10">
                                         <Package size={48} className="mx-auto mb-4 stroke-1" />
                                         <p className="text-sm italic">Ingresa tu código para ver el estado de tu envío.</p>

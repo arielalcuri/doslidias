@@ -12,7 +12,7 @@ import { useAuthStore } from './store/useAuthStore';
 import AdminPanel from './components/AdminPanel';
 import AuthModal from './components/AuthModal';
 import { useGalleryStore } from './store/useGalleryStore';
-import { MessageCircle, Truck, ShieldCheck, Palette, MapPin } from 'lucide-react';
+import { MessageCircle, Truck, ShieldCheck, Palette, MapPin, Search, SlidersHorizontal, ArrowUpDown, X as XIcon } from 'lucide-react';
 
 function App() {
     const { products, fetchProducts } = useProductStore();
@@ -24,6 +24,10 @@ function App() {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isTrackingOpen, setIsTrackingOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedSize, setSelectedSize] = useState('Todos');
+    const [selectedCategory, setSelectedCategory] = useState('Todas');
+    const [priceOrder, setPriceOrder] = useState<'default' | 'asc' | 'desc'>('default');
 
     useEffect(() => {
         fetchSettings();
@@ -183,18 +187,139 @@ function App() {
             {/* Store Section */}
             <section id="tienda" className="py-24 bg-[#fdfaf6]">
                 <div className="container mx-auto px-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-8">
-                        <div>
-                            <h2 className="text-5xl md:text-7xl mb-4 text-text-main">La Tienda</h2>
-                            <p className="text-text-muted text-lg italic">Objetos con alma para tus espacios.</p>
+                    <div className="flex flex-col gap-4">
+                        <h2 className="text-5xl md:text-7xl text-text-main">La Tienda</h2>
+                        <p className="text-text-muted text-lg italic">Objetos con alma para tus espacios.</p>
+                    </div>
+                </div>
+
+                {/* Filters Section */}
+                <div className="mb-12 bg-white rounded-[32px] p-6 md:p-8 shadow-sm border border-slate-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Search by Identity */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identidad de la Maceta</label>
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nombre..."
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-200 rounded-full transition-colors"
+                                    >
+                                        <XIcon size={14} className="text-slate-400" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Size Filter */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tamaño</label>
+                            <div className="relative">
+                                <SlidersHorizontal className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium appearance-none cursor-pointer"
+                                    value={selectedSize}
+                                    onChange={(e) => setSelectedSize(e.target.value)}
+                                >
+                                    <option value="Todos">Todos los tamaños</option>
+                                    {settings.potNumbers?.map(size => (
+                                        <option key={size} value={size}>{size}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Price Ordering */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ordenar por Precio</label>
+                            <div className="relative">
+                                <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium appearance-none cursor-pointer"
+                                    value={priceOrder}
+                                    onChange={(e) => setPriceOrder(e.target.value as any)}
+                                >
+                                    <option value="default">Recomendados</option>
+                                    <option value="asc">Menor precio primero</option>
+                                    <option value="desc">Mayor precio primero</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Category/Collection */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Colección</label>
+                            <div className="flex gap-2">
+                                {['Todas', 'Macetas', 'Arte', 'Combos'].map((cat) => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`flex-1 py-3 px-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCategory === cat
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-16">
-                        {products.map(product => (
+                    {(searchQuery || selectedSize !== 'Todos' || selectedCategory !== 'Todas' || priceOrder !== 'default') && (
+                        <div className="mt-6 flex justify-center border-t border-slate-50 pt-6">
+                            <button
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setSelectedSize('Todos');
+                                    setSelectedCategory('Todas');
+                                    setPriceOrder('default');
+                                }}
+                                className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/70 transition-all flex items-center gap-2"
+                            >
+                                <XIcon size={14} /> Limpiar Filtros
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Product Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-16">
+                    {(() => {
+                        const filtered = products.filter(product => {
+                            const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+                            const matchesCategory = selectedCategory === 'Todas' || product.category === selectedCategory;
+                            const matchesSize = selectedSize === 'Todos' || (product.variants && product.variants.some(v => v.size === selectedSize));
+                            return matchesName && matchesCategory && matchesSize;
+                        }).sort((a, b) => {
+                            if (priceOrder === 'default') return 0;
+                            const priceA = a.variants && a.variants.length > 0 ? Math.min(...a.variants.filter(v => v && typeof v.price === 'number').map(v => v.price)) : (a.price || 0);
+                            const priceB = b.variants && b.variants.length > 0 ? Math.min(...b.variants.filter(v => v && typeof v.price === 'number').map(v => v.price)) : (b.price || 0);
+                            return priceOrder === 'asc' ? priceA - priceB : priceB - priceA;
+                        });
+
+                        if (filtered.length === 0) {
+                            return (
+                                <div className="col-span-full py-32 text-center opacity-30">
+                                    <Search size={64} className="mx-auto mb-6 stroke-1 text-slate-400" />
+                                    <h3 className="text-2xl font-black display-font mb-2">No encontramos resultados</h3>
+                                    <p className="text-sm font-medium">Prueba ajustando los filtros o la búsqueda.</p>
+                                </div>
+                            );
+                        }
+
+                        return filtered.map(product => (
                             <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
-                        ))}
-                    </div>
+                        ));
+                    })()}
                 </div>
             </section>
 
@@ -230,7 +355,7 @@ function App() {
                         <span className="text-[9px] opacity-30 font-black">STABLE RELEASE v1.0.9 - UX OPTIMIZED</span>
                     </div>
                 </div>
-            </footer>
+            </footer >
 
             <Cart
                 isOpen={isCartOpen}
@@ -270,7 +395,7 @@ function App() {
                 isOpen={isAuthModalOpen}
                 onClose={() => setAuthModalOpen(false)}
             />
-        </div>
+        </div >
     );
 }
 

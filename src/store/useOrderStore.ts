@@ -22,7 +22,7 @@ export interface Order {
 interface OrderStore {
     orders: Order[];
     fetchOrders: () => Promise<void>;
-    addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<void>;
+    addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
     updateOrderStatus: (id: string, status: string) => Promise<void>;
     updateTrackingNumber: (id: string, trackingNumber: string) => Promise<void>;
     deleteOrder: (id: string) => Promise<void>;
@@ -95,6 +95,7 @@ export const useOrderStore = create<OrderStore>()(
                     };
                     set((state) => ({ orders: [mapped, ...state.orders] }));
                 }
+                return newId;
             },
             updateOrderStatus: async (id, status) => {
                 const { error } = await supabase

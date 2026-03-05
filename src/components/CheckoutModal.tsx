@@ -108,9 +108,6 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
     };
 
     const completeOrder = async () => {
-        const newOrderId = `ORD-${Math.floor(Math.random() * 900 + 100)}`;
-        setOrderId(newOrderId);
-
         let finalDiscount = 0;
         if (paymentMethod === 'Transferencia') finalDiscount = settings.bankDiscount;
         if (paymentMethod === 'Mercado Pago') finalDiscount = settings.mercadoPagoDiscount;
@@ -118,7 +115,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
         const finalTotal = total * (1 - finalDiscount / 100);
 
         try {
-            await addOrder({
+            const confirmedId = await addOrder({
                 customerName: user?.name || 'Invitado',
                 customerLastName: user?.lastName || (user ? '' : 'Invitado'),
                 customerEmail: user?.email || 'invitado@ejemplo.com',
@@ -129,6 +126,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
                 total: finalTotal,
                 trackingNumber: ''
             });
+
+            setOrderId(confirmedId);
 
             if (onSuccess) onSuccess();
             setStep('success');

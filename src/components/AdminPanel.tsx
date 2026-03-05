@@ -980,9 +980,14 @@ const AdminPanel: React.FC = () => {
                                         </div>
                                         <button
                                             onClick={() => {
-                                                const id = prompt('Identificador Técnico (ej: en_preparacion):');
-                                                const label = prompt('Nombre Visible (ej: Pedido Preparado):');
-                                                if (id && label) setTempSettings({ ...tempSettings, shippingStatuses: [...tempSettings.shippingStatuses, { id, label, color: 'bg-slate-100 text-slate-400' }] });
+                                                const newId = `status_${Date.now()}`;
+                                                setTempSettings({
+                                                    ...tempSettings,
+                                                    shippingStatuses: [
+                                                        ...tempSettings.shippingStatuses,
+                                                        { id: newId, label: 'Nueva Etapa', color: 'bg-slate-100 text-slate-400' }
+                                                    ]
+                                                });
                                             }}
                                             className="btn-secondary py-3 text-[10px]"
                                         >
@@ -990,45 +995,67 @@ const AdminPanel: React.FC = () => {
                                         </button>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                         {tempSettings.shippingStatuses.map((st, i) => (
-                                            <div key={st.id} className="relative group p-8 bg-slate-50/50 rounded-[40px] border border-slate-100 border-dashed hover:border-primary/50 transition-all hover:bg-white">
+                                            <div key={i} className="relative group p-8 bg-slate-50/50 rounded-[40px] border border-slate-100 border-dashed hover:border-primary/40 transition-all hover:bg-white shadow-sm hover:shadow-xl">
                                                 <button
                                                     onClick={() => setTempSettings({ ...tempSettings, shippingStatuses: tempSettings.shippingStatuses.filter((_, idx) => idx !== i) })}
-                                                    className="absolute -top-3 -right-3 w-10 h-10 bg-white text-red-400 rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                                                    className="absolute -top-3 -right-3 w-10 h-10 bg-white text-red-500 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all transform hover:scale-110 z-10"
                                                 >
-                                                    <X size={20} />
+                                                    <Trash2 size={20} />
                                                 </button>
+
                                                 <div className="space-y-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 bg-white shadow-sm rounded-2xl flex items-center justify-center text-slate-200">
-                                                            {getStatusIcon(st.id)}
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">Código (ID)</label>
+                                                        <input
+                                                            className="w-full text-xs font-mono bg-white px-4 py-3 rounded-2xl border border-slate-100 text-slate-400 outline-none focus:border-slate-300 transition-all"
+                                                            value={st.id}
+                                                            onChange={e => {
+                                                                const s = [...tempSettings.shippingStatuses];
+                                                                s[i].id = e.target.value.toLowerCase().replace(/\s+/g, '_');
+                                                                setTempSettings({ ...tempSettings, shippingStatuses: s });
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">Nombre Visible</label>
+                                                        <div className="flex items-center gap-4 bg-white px-4 py-3 rounded-2xl border border-slate-100">
+                                                            <div className="text-slate-200">
+                                                                {getStatusIcon(st.id)}
+                                                            </div>
+                                                            <input
+                                                                className="bg-transparent border-none font-black text-slate-800 outline-none w-full uppercase text-xs tracking-[0.2em] focus:text-primary transition-colors"
+                                                                value={st.label}
+                                                                onChange={e => {
+                                                                    const s = [...tempSettings.shippingStatuses];
+                                                                    s[i].label = e.target.value;
+                                                                    setTempSettings({ ...tempSettings, shippingStatuses: s });
+                                                                }}
+                                                            />
                                                         </div>
-                                                        <input
-                                                            className="bg-transparent border-none font-black text-slate-800 outline-none w-full uppercase text-xs tracking-[0.2em] focus:text-primary transition-colors"
-                                                            value={st.label}
-                                                            onChange={e => {
-                                                                const s = [...tempSettings.shippingStatuses];
-                                                                s[i].label = e.target.value;
-                                                                setTempSettings({ ...tempSettings, shippingStatuses: s });
-                                                            }}
-                                                        />
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <Palette size={16} className="text-slate-200" />
-                                                        <input
-                                                            className="w-full text-xs font-mono bg-white px-4 py-3 rounded-2xl border border-slate-50 text-slate-400 outline-none focus:border-primary transition-all"
-                                                            value={st.color}
-                                                            placeholder="Tailwind classes..."
-                                                            onChange={e => {
-                                                                const s = [...tempSettings.shippingStatuses];
-                                                                s[i].color = e.target.value;
-                                                                setTempSettings({ ...tempSettings, shippingStatuses: s });
-                                                            }}
-                                                        />
+
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">Clases de Color (CSS)</label>
+                                                        <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-2xl border border-slate-100">
+                                                            <Palette size={16} className="text-slate-200 shrink-0" />
+                                                            <input
+                                                                className="w-full text-[10px] font-mono text-slate-400 outline-none focus:text-primary transition-all"
+                                                                value={st.color}
+                                                                placeholder="bg-blue-100 text-blue-700..."
+                                                                onChange={e => {
+                                                                    const s = [...tempSettings.shippingStatuses];
+                                                                    s[i].color = e.target.value;
+                                                                    setTempSettings({ ...tempSettings, shippingStatuses: s });
+                                                                }}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase text-center border shadow-sm transition-all ${st.color}`}>
-                                                        Vista Previa
+
+                                                    <div className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase text-center border shadow-sm transition-all ${st.color}`}>
+                                                        Vista Previa de Etiqueta
                                                     </div>
                                                 </div>
                                             </div>

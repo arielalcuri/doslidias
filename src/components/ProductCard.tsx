@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ShoppingCart } from 'lucide-react';
 import { Product } from '../store/useProductStore';
 
@@ -10,7 +10,9 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     const [selectedVariant, setSelectedVariant] = React.useState<{ size: string, price: number } | null>(null);
+    const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
+    const allImages = [product.image, ...(product.images || [])].filter(Boolean);
     const validVariants = (product.variants || []).filter(v => v && typeof v.price === 'number');
     const hasVariants = validVariants.length > 0;
 
@@ -39,26 +41,62 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             viewport={{ once: true }}
             className="card-product flex flex-col h-full bg-white rounded-[40px] p-5 shadow-sm hover:shadow-2xl border border-gray-100 group transition-all duration-500"
         >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-6 shadow-inner bg-slate-50">
-                <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-6 shadow-inner bg-slate-50 relative group/carousel">
+                <AnimatePresence mode="wait">
+                    <motion.img
+                        key={currentImageIndex}
+                        src={allImages[currentImageIndex]}
+                        alt={product.name}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full h-full object-cover"
+                    />
+                </AnimatePresence>
+
+                {allImages.length > 1 && (
+                    <>
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 px-3 py-2 bg-black/10 backdrop-blur-sm rounded-full">
+                            {allImages.map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
+                                    className={`w-1.5 h-1.5 rounded-full transition-all ${currentImageIndex === idx ? 'bg-white w-4' : 'bg-white/40'}`}
+                                />
+                            ))}
+                        </div>
+                        {/* Area click to change */}
+                        <div className="absolute inset-0 flex">
+                            <div className="w-1/2 h-full cursor-w-resize" onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }} />
+                            <div className="w-1/2 h-full cursor-e-resize" onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }} />
+                        </div>
+                    </>
+                )}
+
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500 pointer-events-none" />
                 <button
                     onClick={handleAdd}
-                    className="absolute bottom-6 right-6 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl text-primary scale-0 group-hover:scale-100 transition-all duration-300 hover:bg-primary hover:text-white hover:rotate-90"
+                    className="absolute bottom-6 right-6 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl text-primary scale-0 group-hover:scale-100 transition-all duration-300 hover:bg-primary hover:text-white hover:rotate-90 z-20"
                 >
                     <Plus size={28} />
                 </button>
             </div>
 
             <div className="flex-1 flex flex-col px-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/60 mb-3 ml-1">
-                    {product.category}
-                </span>
-                <h3 className="text-2xl mb-4 text-slate-800 group-hover:text-primary transition-colors leading-tight font-serif">{product.name}</h3>
+                <div className="flex justify-between items-start mb-3">
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/60 ml-1">
+                        {product.category}
+                    </span>
+                    {product.theme && (
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+                            {product.theme}
+                        </span>
+                    )}
+                </div>
+                <h3 className="text-2xl mb-4 text-slate-800 group-hover:text-primary transition-colors leading-tight font-serif">
+                    {product.subtheme || product.name}
+                </h3>
 
                 {hasVariants && (
                     <div className="mb-6 space-y-3">

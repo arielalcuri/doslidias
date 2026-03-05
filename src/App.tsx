@@ -12,7 +12,7 @@ import { useAuthStore } from './store/useAuthStore';
 import AdminPanel from './components/AdminPanel';
 import AuthModal from './components/AuthModal';
 import { useGalleryStore } from './store/useGalleryStore';
-import { MessageCircle, Truck, ShieldCheck, Palette, MapPin, Search, SlidersHorizontal, ArrowUpDown, X as XIcon } from 'lucide-react';
+import { MessageCircle, Truck, ShieldCheck, Palette, MapPin, Search, SlidersHorizontal, ArrowUpDown, X as XIcon, Users } from 'lucide-react';
 
 function App() {
     const { products, fetchProducts } = useProductStore();
@@ -27,6 +27,8 @@ function App() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSize, setSelectedSize] = useState('Todos');
     const [selectedCategory, setSelectedCategory] = useState('Todas');
+    const [selectedTheme, setSelectedTheme] = useState('Todos');
+    const [selectedSubtheme, setSelectedSubtheme] = useState('Todos');
     const [priceOrder, setPriceOrder] = useState<'default' | 'asc' | 'desc'>('default');
 
     useEffect(() => {
@@ -196,26 +198,48 @@ function App() {
                 {/* Filters Section */}
                 <div className="mb-12 bg-white rounded-[32px] p-6 md:p-8 shadow-sm border border-slate-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Search by Identity */}
+
+
+                        {/* Theme Filter */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identidad de la Maceta</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tema</label>
                             <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                                <input
-                                    type="text"
-                                    placeholder="Buscar por nombre..."
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-200 rounded-full transition-colors"
-                                    >
-                                        <XIcon size={14} className="text-slate-400" />
-                                    </button>
-                                )}
+                                <Palette className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium appearance-none cursor-pointer"
+                                    value={selectedTheme}
+                                    onChange={(e) => {
+                                        setSelectedTheme(e.target.value);
+                                        setSelectedSubtheme('Todos'); // Reset subtheme when theme changes
+                                    }}
+                                >
+                                    <option value="Todos">Todos los temas</option>
+                                    {Array.from(new Set(products.map(p => p.theme).filter(Boolean))).map(theme => (
+                                        <option key={theme} value={theme}>{theme}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Subtheme Filter */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subtema / Artista</label>
+                            <div className="relative">
+                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium appearance-none cursor-pointer"
+                                    value={selectedSubtheme}
+                                    onChange={(e) => setSelectedSubtheme(e.target.value)}
+                                >
+                                    <option value="Todos">Todos los subtemas</option>
+                                    {Array.from(new Set(products
+                                        .filter(p => selectedTheme === 'Todos' || p.theme === selectedTheme)
+                                        .map(p => p.subtheme)
+                                        .filter(Boolean))
+                                    ).map(subtheme => (
+                                        <option key={subtheme} value={subtheme}>{subtheme}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -229,7 +253,7 @@ function App() {
                                     value={selectedSize}
                                     onChange={(e) => setSelectedSize(e.target.value)}
                                 >
-                                    <option value="Todos">Todos los tamaños</option>
+                                    <option value="Todos">Todos</option>
                                     {settings.potNumbers?.map(size => (
                                         <option key={size} value={size}>{size}</option>
                                     ))}
@@ -248,15 +272,15 @@ function App() {
                                     onChange={(e) => setPriceOrder(e.target.value as any)}
                                 >
                                     <option value="default">Recomendados</option>
-                                    <option value="asc">Menor precio primero</option>
-                                    <option value="desc">Mayor precio primero</option>
+                                    <option value="asc">Menor precio</option>
+                                    <option value="desc">Mayor precio</option>
                                 </select>
                             </div>
                         </div>
 
                         {/* Category/Collection */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Colección</label>
+                        <div className="space-y-2 lg:col-span-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Colección Principal</label>
                             <div className="flex gap-2">
                                 {['Todas', 'Macetas', 'Arte', 'Combos'].map((cat) => (
                                     <button
@@ -272,15 +296,32 @@ function App() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Search by Identity */}
+                        <div className="space-y-2 lg:col-span-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Búsqueda Libre</label>
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Busca por nombre o detalle..."
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    {(searchQuery || selectedSize !== 'Todos' || selectedCategory !== 'Todas' || priceOrder !== 'default') && (
+                    {(searchQuery || selectedSize !== 'Todos' || selectedCategory !== 'Todas' || selectedTheme !== 'Todos' || selectedSubtheme !== 'Todos' || priceOrder !== 'default') && (
                         <div className="mt-6 flex justify-center border-t border-slate-50 pt-6">
                             <button
                                 onClick={() => {
                                     setSearchQuery('');
                                     setSelectedSize('Todos');
                                     setSelectedCategory('Todas');
+                                    setSelectedTheme('Todos');
+                                    setSelectedSubtheme('Todos');
                                     setPriceOrder('default');
                                 }}
                                 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/70 transition-all flex items-center gap-2"
@@ -295,10 +336,13 @@ function App() {
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-16">
                     {(() => {
                         const filtered = products.filter(product => {
-                            const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+                            const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                (product.subtheme && product.subtheme.toLowerCase().includes(searchQuery.toLowerCase()));
                             const matchesCategory = selectedCategory === 'Todas' || product.category === selectedCategory;
+                            const matchesTheme = selectedTheme === 'Todos' || product.theme === selectedTheme;
+                            const matchesSubtheme = selectedSubtheme === 'Todos' || product.subtheme === selectedSubtheme;
                             const matchesSize = selectedSize === 'Todos' || (product.variants && product.variants.some(v => v.size === selectedSize));
-                            return matchesName && matchesCategory && matchesSize;
+                            return matchesName && matchesCategory && matchesTheme && matchesSubtheme && matchesSize;
                         }).sort((a, b) => {
                             if (priceOrder === 'default') return 0;
                             const priceA = a.variants && a.variants.length > 0 ? Math.min(...a.variants.filter(v => v && typeof v.price === 'number').map(v => v.price)) : (a.price || 0);

@@ -9,6 +9,9 @@ export interface Product {
     category: string;
     description: string;
     image: string;
+    images?: string[];
+    theme?: string;
+    subtheme?: string;
     variants?: { size: string, price: number }[];
 }
 

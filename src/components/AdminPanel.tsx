@@ -73,6 +73,9 @@ const AdminPanel: React.FC = () => {
         category: 'Macetas',
         description: '',
         image: '',
+        images: [],
+        theme: '',
+        subtheme: '',
         variants: []
     });
 
@@ -133,7 +136,7 @@ const AdminPanel: React.FC = () => {
             } else {
                 await addProduct(formData);
             }
-            setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', variants: [] });
+            setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', images: [], theme: '', subtheme: '', variants: [] });
             setIsAdding(false);
             alert('Producto guardado correctamente');
         } catch (error: any) {
@@ -160,6 +163,9 @@ const AdminPanel: React.FC = () => {
             category: product.category,
             description: product.description,
             image: product.image || '',
+            images: product.images || [],
+            theme: product.theme || '',
+            subtheme: product.subtheme || '',
             variants: product.variants || []
         });
         setIsAdding(true);
@@ -168,7 +174,7 @@ const AdminPanel: React.FC = () => {
     const cancelForm = () => {
         setIsAdding(false);
         setEditingId(null);
-        setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', variants: [] });
+        setFormData({ name: '', price: 0, category: 'Macetas', description: '', image: '', images: [], theme: '', subtheme: '', variants: [] });
     };
 
     const filteredOrders = orders.filter(o =>
@@ -370,13 +376,46 @@ const AdminPanel: React.FC = () => {
 
                                         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                             <div className="space-y-8">
-                                                <FormGroup label="Identidad de la Maceta">
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <FormGroup label="Tema (Ej: Artistas)">
+                                                        <input
+                                                            className="admin-input"
+                                                            value={formData.theme}
+                                                            onChange={e => setFormData({ ...formData, theme: e.target.value })}
+                                                            placeholder="Ej: Artistas"
+                                                            list="themes-list"
+                                                        />
+                                                        <datalist id="themes-list">
+                                                            {Array.from(new Set(products.map(p => p.theme).filter(Boolean))).map(t => (
+                                                                <option key={t} value={t} />
+                                                            ))}
+                                                        </datalist>
+                                                    </FormGroup>
+
+                                                    <FormGroup label="Subtema / Identidad">
+                                                        <input
+                                                            required
+                                                            className="admin-input"
+                                                            value={formData.subtheme}
+                                                            onChange={e => setFormData({ ...formData, subtheme: e.target.value, name: e.target.value })}
+                                                            placeholder="Ej: Charly García"
+                                                            list="subthemes-list"
+                                                        />
+                                                        <datalist id="subthemes-list">
+                                                            {Array.from(new Set(products.map(p => p.subtheme).filter(Boolean))).map(st => (
+                                                                <option key={st} value={st} />
+                                                            ))}
+                                                        </datalist>
+                                                    </FormGroup>
+                                                </div>
+
+                                                <FormGroup label="Nombre Público del Producto">
                                                     <input
                                                         required
                                                         className="admin-input"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                        placeholder="Ej: Maceta Nóvum 15cm"
+                                                        placeholder="Ej: Maceta Homenaje Charly García"
                                                     />
                                                 </FormGroup>
 
@@ -473,36 +512,83 @@ const AdminPanel: React.FC = () => {
                                             </div>
 
                                             <div className="space-y-8">
-                                                <FormGroup label="Imagen de la Pieza">
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            required
-                                                            className="admin-input text-xs font-mono flex-1"
-                                                            value={formData.image}
-                                                            onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                                            placeholder="URL de la imagen..."
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setPickingFor('product');
-                                                                setIsGalleryPickerOpen(true);
-                                                            }}
-                                                            className="p-4 bg-slate-900 text-white rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg"
-                                                            title="Seleccionar de Galería"
-                                                        >
-                                                            <ImageIcon size={20} />
-                                                        </button>
+                                                <FormGroup label="Imágenes de la Pieza (Carrusel)">
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                className="admin-input text-xs font-mono flex-1"
+                                                                placeholder="URL de la imagen principal..."
+                                                                value={formData.image}
+                                                                onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => { setPickingFor('product'); setIsGalleryPickerOpen(true); }}
+                                                                className="p-4 bg-slate-900 text-white rounded-2xl hover:scale-105 transition-all shadow-lg"
+                                                            >
+                                                                <ImageIcon size={20} />
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fotos Adicionales</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setFormData({ ...formData, images: [...(formData.images || []), ''] })}
+                                                                    className="text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-1"
+                                                                >
+                                                                    <Plus size={14} /> Agregar Foto
+                                                                </button>
+                                                            </div>
+                                                            {(formData.images || []).map((img, idx) => (
+                                                                <div key={idx} className="flex gap-2">
+                                                                    <input
+                                                                        className="admin-input text-xs font-mono flex-1"
+                                                                        placeholder="URL de imagen adicional..."
+                                                                        value={img}
+                                                                        onChange={e => {
+                                                                            const imgs = [...(formData.images || [])];
+                                                                            imgs[idx] = e.target.value;
+                                                                            setFormData({ ...formData, images: imgs });
+                                                                        }}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const imgs = (formData.images || []).filter((_, i) => i !== idx);
+                                                                            setFormData({ ...formData, images: imgs });
+                                                                        }}
+                                                                        className="p-3 text-red-400 hover:bg-red-50 rounded-xl"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </FormGroup>
 
-                                                <div className="aspect-[4/3] bg-slate-50 rounded-[40px] border border-dashed border-slate-200 flex items-center justify-center overflow-hidden shadow-inner">
+                                                <div className="aspect-[4/3] bg-slate-50 rounded-[40px] border border-dashed border-slate-200 flex items-center justify-center overflow-hidden shadow-inner relative group">
                                                     {formData.image ? (
-                                                        <img src={formData.image} className="w-full h-full object-cover" alt="Preview" />
+                                                        <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+                                                            <img src={formData.image} className="w-full h-full object-cover shrink-0 snap-center" alt="Preview 0" />
+                                                            {formData.images?.map((img, i) => (
+                                                                img && <img key={i} src={img} className="w-full h-full object-cover shrink-0 snap-center" alt={`Preview ${i + 1}`} />
+                                                            ))}
+                                                        </div>
                                                     ) : (
                                                         <div className="text-center opacity-10">
                                                             <ImageIcon size={64} className="mx-auto mb-2" />
                                                             <p className="text-[12px] font-black uppercase tracking-widest">Vista Previa</p>
+                                                        </div>
+                                                    )}
+                                                    {formData.images && formData.images.length > 0 && (
+                                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 bg-black/20 backdrop-blur-md px-2 py-1.5 rounded-full">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                                            {formData.images.map((_, i) => (
+                                                                <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                                                            ))}
                                                         </div>
                                                     )}
                                                 </div>

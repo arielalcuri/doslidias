@@ -192,9 +192,9 @@ const AdminPanel: React.FC = () => {
 
     const getStatusIcon = (statusId: string) => {
         const id = statusId.toLowerCase();
-        if (id.includes('pendiente')) return <Clock size={14} />;
+        if (id.includes('pendiente') || id.includes('preparacion')) return <Clock size={14} />;
         if (id.includes('embalado')) return <Box size={14} />;
-        if (id.includes('camino')) return <Truck size={14} />;
+        if (id.includes('camino') || id.includes('enviado')) return <Truck size={14} />;
         if (id.includes('entregado')) return <Check size={14} />;
         if (id.includes('cancel')) return <X size={14} />;
         return <Package size={14} />;

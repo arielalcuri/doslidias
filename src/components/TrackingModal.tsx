@@ -64,9 +64,9 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose }) => {
 
     const getStatusIcon = (statusId: string) => {
         const id = statusId.toLowerCase();
-        if (id.includes('pendiente')) return Clock;
+        if (id.includes('pendiente') || id.includes('preparacion')) return Clock;
         if (id.includes('embalado')) return Box;
-        if (id.includes('camino')) return Truck;
+        if (id.includes('camino') || id.includes('enviado')) return Truck;
         if (id.includes('entregado')) return CheckCircle2;
         return Package;
     };

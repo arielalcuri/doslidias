@@ -43,9 +43,8 @@ const DEFAULT_SETTINGS: Settings = {
     isVacationMode: false,
     shippingInfo: 'Retiros en Ramos Mejía, Zona Oeste. Envíos a coordinar por WhatsApp.',
     shippingStatuses: [
-        { id: 'pendiente', label: 'Pendiente', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-        { id: 'embalado', label: 'Pedido Embalado', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-        { id: 'en_camino', label: 'En viaje (En camino)', color: 'bg-primary/20 text-primary border-primary/30' },
+        { id: 'preparacion', label: 'En preparación', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+        { id: 'enviado', label: 'Enviado', color: 'bg-blue-100 text-blue-700 border-blue-200' },
         { id: 'entregado', label: 'Entregado', color: 'bg-green-100 text-green-700 border-green-200' },
         { id: 'cancelado', label: 'Cancelado', color: 'bg-red-100 text-red-700 border-red-200' }
     ],

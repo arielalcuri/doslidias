@@ -29,7 +29,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
 
         if (status === 'success' && isOpen) {
             setPaymentMethod('Mercado Pago');
-            setOrderId(externalRef || `ORD-${Math.floor(Math.random() * 900 + 100)}`);
+            // No generamos ID aquí, dejamos que completeOrder lo maneje y setee el ID real de la BBDD
             completeOrder();
             // Limpiar URL
             window.history.replaceState({}, document.title, window.location.pathname);

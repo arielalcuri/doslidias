@@ -39,7 +39,7 @@ const AdminPanel: React.FC = () => {
     const { products, addProduct, updateProduct, deleteProduct, fetchProducts } = useProductStore();
     const { settings, updateSettings, fetchSettings } = useSettingsStore();
     const { allUsers } = useAuthStore();
-    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder } = useOrderStore();
+    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery } = useGalleryStore();
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
@@ -52,7 +52,8 @@ const AdminPanel: React.FC = () => {
             await Promise.all([
                 fetchProducts(),
                 fetchSettings(),
-                fetchGallery()
+                fetchGallery(),
+                fetchOrders()
             ]);
         };
         loadData();

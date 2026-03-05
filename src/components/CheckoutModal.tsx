@@ -92,8 +92,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
                 // Opción Mayorista
                 if (method === 'Mayorista') {
                     setStep('processing');
-                    setTimeout(() => {
-                        completeOrder();
+                    setTimeout(async () => {
+                        await completeOrder();
                     }, 5000); // 5 segundos para que parezca que se está registrando
                 }
             } catch (error) {
@@ -107,7 +107,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
         setStep('external_payment');
     };
 
-    const completeOrder = () => {
+    const completeOrder = async () => {
         const newOrderId = `ORD-${Math.floor(Math.random() * 900 + 100)}`;
         setOrderId(newOrderId);
 
@@ -117,20 +117,26 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
 
         const finalTotal = total * (1 - finalDiscount / 100);
 
-        addOrder({
-            customerName: user?.name || 'Invitado',
-            customerLastName: user?.lastName || (user ? '' : 'Invitado'),
-            customerEmail: user?.email || 'invitado@ejemplo.com',
-            customerPhone: user?.phone || 'S/D',
-            customerAddress: user?.address || 'S/D',
-            customerDNI: user?.docNumber || 'S/D',
-            items: items.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price })),
-            total: finalTotal,
-            trackingNumber: ''
-        });
+        try {
+            await addOrder({
+                customerName: user?.name || 'Invitado',
+                customerLastName: user?.lastName || (user ? '' : 'Invitado'),
+                customerEmail: user?.email || 'invitado@ejemplo.com',
+                customerPhone: user?.phone || 'S/D',
+                customerAddress: user?.address || 'S/D',
+                customerDNI: user?.docNumber || 'S/D',
+                items: items.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price })),
+                total: finalTotal,
+                trackingNumber: ''
+            });
 
-        if (onSuccess) onSuccess();
-        setStep('success');
+            if (onSuccess) onSuccess();
+            setStep('success');
+        } catch (error) {
+            console.error("Error completing order:", error);
+            alert("Hubo un problema al registrar tu pedido. Por favor intenta de nuevo.");
+            setStep('select');
+        }
     };
 
     const copyToClipboard = (text: string, label: string) => {

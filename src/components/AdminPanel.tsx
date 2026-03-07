@@ -42,7 +42,23 @@ const AdminPanel: React.FC = () => {
     useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus } = useGalleryStore();
-    const allUsers: any[] = []; // Provisional fix for missing property
+    const allUsers = React.useMemo(() => {
+        const uniqueCustomers = new Map();
+        orders.forEach(order => {
+            if (!uniqueCustomers.has(order.customerEmail)) {
+                uniqueCustomers.set(order.customerEmail, {
+                    id: order.id.replace('ORD-', 'CUST-'),
+                    name: order.customerName,
+                    lastName: order.customerLastName || '',
+                    email: order.customerEmail,
+                    docType: 'DNI',
+                    docNumber: order.customerDNI || 'S/D',
+                    birthDate: order.date
+                });
+            }
+        });
+        return Array.from(uniqueCustomers.values());
+    }, [orders]);
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
@@ -1403,11 +1419,20 @@ const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50">
-                                            {allUsers.length === 0 && searchQuery === '' ? (
+                                            {orderStatus === 'loading' && allUsers.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={5} className="py-20 text-center">
                                                         <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
                                                         <p className="font-black uppercase tracking-[0.2em] text-xs animate-pulse">Sincronizando...</p>
+                                                    </td>
+                                                </tr>
+                                            ) : allUsers.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="py-24 text-center">
+                                                        <div className="flex flex-col items-center opacity-20">
+                                                            <Users size={48} className="mb-4" />
+                                                            <p className="font-black uppercase tracking-[0.2em] text-xs">No hay clientes registrados aún</p>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ) : (

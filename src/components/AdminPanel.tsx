@@ -122,7 +122,8 @@ const AdminPanel: React.FC = () => {
                 }
             } catch (error: any) {
                 console.error('Error uploading to Cloudinary:', error);
-                const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+                const errStr = String(error.message || error).toLowerCase();
+                const isNetworkError = errStr.includes('fetch') || errStr.includes('network') || error.name === 'TypeError';
                 alert(isNetworkError
                     ? 'Error de conexión: Revisa tu internet para subir la imagen.'
                     : 'Error al subir la imagen. Por favor intenta de nuevo.');
@@ -146,10 +147,11 @@ const AdminPanel: React.FC = () => {
             alert('Producto guardado correctamente');
         } catch (error: any) {
             console.error('Error saving product:', error);
-            const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+            const errStr = String(error.message || error).toLowerCase();
+            const isNetworkError = errStr.includes('fetch') || errStr.includes('network') || error.name === 'TypeError';
             alert(isNetworkError
                 ? 'Error de conexión: Verifica tu internet e intenta de nuevo.'
-                : `Error al guardar: ${error.message || 'Verifica que la base de datos sea accesible.'}`);
+                : `Error al guardar: ${error.message || 'Verifica la base de datos.'}`);
         }
     };
 
@@ -159,7 +161,8 @@ const AdminPanel: React.FC = () => {
             alert('Configuración guardada correctamente');
         } catch (error: any) {
             console.error('Error saving settings:', error);
-            const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+            const errStr = String(error.message || error).toLowerCase();
+            const isNetworkError = errStr.includes('fetch') || errStr.includes('network') || error.name === 'TypeError';
             alert(isNetworkError
                 ? 'Error de conexión: No se pudieron guardar los ajustes.'
                 : 'Error al guardar la configuración.');

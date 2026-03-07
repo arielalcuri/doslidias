@@ -23,9 +23,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
 
     // Detectar retorno de Mercado Pago
     React.useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const status = params.get('status');
-        const externalRef = params.get('external_reference') || params.get('orderId');
+        // const params = new URLSearchParams(window.location.search);
+        const status = new URLSearchParams(window.location.search).get('status');
 
         if (status === 'success' && isOpen) {
             setPaymentMethod('Mercado Pago');

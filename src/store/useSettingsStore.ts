@@ -25,6 +25,8 @@ interface Settings {
 
 interface SettingsStore {
     settings: Settings;
+    status: 'idle' | 'loading' | 'error';
+    error: string | null;
     fetchSettings: () => Promise<void>;
     updateSettings: (newSettings: Settings) => Promise<void>;
 }
@@ -63,28 +65,40 @@ export const useSettingsStore = create<SettingsStore>()(
     persist(
         (set) => ({
             settings: DEFAULT_SETTINGS,
+            status: 'idle',
+            error: null,
             fetchSettings: async () => {
-                const { data, error } = await supabase
-                    .from('settings')
-                    .select('data')
-                    .eq('id', 'current')
-                    .single();
+                set({ status: 'loading', error: null });
+                try {
+                    const { data, error } = await supabase
+                        .from('settings')
+                        .select('data')
+                        .eq('id', 'current')
+                        .single();
 
-                if (data && !error) {
-                    // Combinar con los valores por defecto para asegurar que nuevos campos (como potNumbers) existan
-                    set({ settings: { ...DEFAULT_SETTINGS, ...data.data } });
+                    if (error && error.code !== 'PGRST116') throw error;
+
+                    if (data) {
+                        set({ settings: { ...DEFAULT_SETTINGS, ...data.data }, status: 'idle' });
+                    } else {
+                        set({ status: 'idle' });
+                    }
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
                 }
             },
             updateSettings: async (newSettings) => {
-                const { error } = await supabase
-                    .from('settings')
-                    .upsert({ id: 'current', data: newSettings });
+                set({ status: 'loading', error: null });
+                try {
+                    const { error } = await supabase
+                        .from('settings')
+                        .upsert({ id: 'current', data: newSettings });
 
-                if (!error) {
-                    set({ settings: newSettings });
-                } else {
-                    console.error('Error saving settings:', error);
-                    throw error;
+                    if (error) throw error;
+                    set({ settings: newSettings, status: 'idle' });
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
                 }
             },
         }),

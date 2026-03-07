@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '../lib/supabase';
 
 interface User {
     id: string;
@@ -16,88 +17,125 @@ interface User {
 
 interface AuthStore {
     user: User | null;
-    allUsers: User[];
     status: 'idle' | 'loading' | 'error';
+    error: string | null;
     isAuthModalOpen: boolean;
     setAuthModalOpen: (open: boolean) => void;
     login: (email: string, pass: string) => Promise<void>;
     register: (userData: Omit<User, 'id'>, pass: string) => Promise<void>;
     logout: () => void;
+    setUser: (user: User | null) => void;
+    checkUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             user: null,
-            allUsers: [
-                {
-                    id: 'u1',
-                    name: 'Ariel',
-                    lastName: 'Rodríguez',
-                    email: 'ariel.dev@gmail.com',
-                    birthDate: '1990-05-15',
-                    docType: 'DNI',
-                    docNumber: '38123456',
-                    phone: '+54 11 5555 1234',
-                    address: 'Calle Falsa 123, CABA'
-                },
-                {
-                    id: 'u2',
-                    name: 'Lucía',
-                    lastName: 'Fernández',
-                    email: 'lucia.f@hotmail.com',
-                    birthDate: '1995-10-20',
-                    docType: 'DNI',
-                    docNumber: '40987654',
-                    phone: '+54 11 2222 3333',
-                    address: 'Av. Libertador 456, Olivos'
-                }
-            ],
             status: 'idle',
+            error: null,
             isAuthModalOpen: false,
-            setAuthModalOpen: (open: boolean) => set({ isAuthModalOpen: open }),
-            login: async (email) => {
-                set({ status: 'loading' });
-                // Simulación de login - busca en allUsers
-                setTimeout(() => {
-                    const existingUser = get().allUsers.find(u => u.email === email);
-                    if (existingUser) {
-                        set({ user: existingUser, status: 'idle' });
-                    } else {
-                        // Si no existe, creamos uno temporal para la demo
-                        const newUser = {
-                            id: `u${Math.random()}`,
-                            name: 'Usuario',
-                            lastName: 'Demo',
-                            email,
-                            birthDate: '1990-01-01',
-                            docType: 'DNI',
-                            docNumber: '12345678',
-                            phone: '+54 11 0000 0000',
-                            address: 'Dirección Demo'
-                        };
+            setAuthModalOpen: (open: boolean) => set({ isAuthModalOpen: open, error: null }),
+            setUser: (user) => set({ user }),
+            
+            checkUser: async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    set({ 
+                        user: {
+                            id: user.id,
+                            email: user.email || '',
+                            name: user.user_metadata.name || '',
+                            lastName: user.user_metadata.last_name || '',
+                            birthDate: user.user_metadata.birth_date || '',
+                            docType: user.user_metadata.doc_type || 'DNI',
+                            docNumber: user.user_metadata.doc_number || '',
+                            phone: user.user_metadata.phone || '',
+                            address: user.user_metadata.address || '',
+                        }
+                    });
+                } else {
+                    set({ user: null });
+                }
+            },
+
+            login: async (email, pass) => {
+                set({ status: 'loading', error: null });
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email,
+                        password: pass,
+                    });
+
+                    if (error) throw error;
+
+                    if (data.user) {
                         set({
-                            user: newUser,
-                            allUsers: [...get().allUsers, newUser],
+                            user: {
+                                id: data.user.id,
+                                email: data.user.email || '',
+                                name: data.user.user_metadata.name || '',
+                                lastName: data.user.user_metadata.last_name || '',
+                                birthDate: data.user.user_metadata.birth_date || '',
+                                docType: data.user.user_metadata.doc_type || 'DNI',
+                                docNumber: data.user.user_metadata.doc_number || '',
+                                phone: data.user.user_metadata.phone || '',
+                                address: data.user.user_metadata.address || '',
+                            },
                             status: 'idle'
                         });
                     }
-                }, 1500);
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
+                }
             },
-            register: async (userData) => {
-                set({ status: 'loading' });
-                // Simulación de registro
-                setTimeout(() => {
-                    const newUser = { id: `u${Math.random()}`, ...userData };
-                    set((state) => ({
-                        user: newUser,
-                        allUsers: [...state.allUsers, newUser],
-                        status: 'idle'
-                    }));
-                }, 1500);
+
+            register: async (userData, pass) => {
+                set({ status: 'loading', error: null });
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: userData.email,
+                        password: pass,
+                        options: {
+                            data: {
+                                name: userData.name,
+                                last_name: userData.lastName,
+                                birth_date: userData.birthDate,
+                                doc_type: userData.docType,
+                                doc_number: userData.docNumber,
+                                phone: userData.phone,
+                                address: userData.address,
+                            }
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    if (data.user) {
+                        set({
+                            user: {
+                                id: data.user.id,
+                                ...userData
+                            },
+                            status: 'idle'
+                        });
+                    }
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
+                }
             },
-            logout: () => set({ user: null }),
+
+            logout: async () => {
+                await supabase.auth.signOut();
+                set({ user: null, status: 'idle', error: null });
+            },
         }),
-        { name: 'dos-lidias-auth-v2' }
+        { 
+            name: 'dos-lidias-auth-v3',
+            partialize: (state) => ({ user: state.user }) // Solo persistimos el usuario
+        }
     )
 );
+

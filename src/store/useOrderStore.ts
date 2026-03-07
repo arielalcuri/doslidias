@@ -21,6 +21,8 @@ export interface Order {
 
 interface OrderStore {
     orders: Order[];
+    status: 'idle' | 'loading' | 'error';
+    error: string | null;
     fetchOrders: () => Promise<void>;
     addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
     updateOrderStatus: (id: string, status: string) => Promise<void>;
@@ -28,109 +30,147 @@ interface OrderStore {
     deleteOrder: (id: string) => Promise<void>;
 }
 
+// Helper: Mapper DB -> Frontend
+const mapOrderFromDB = (o: any): Order => ({
+    id: o.id,
+    customerName: o.customer_name,
+    customerLastName: o.customer_last_name,
+    customerEmail: o.customer_email,
+    customerPhone: o.customer_phone,
+    customerAddress: o.customer_address,
+    customerDNI: o.customer_dni,
+    date: o.date,
+    items: o.items,
+    total: o.total,
+    status: o.status,
+    trackingNumber: o.tracking_number
+});
+
+// Helper: Mapper Frontend -> DB
+const mapOrderToDB = (orderData: Omit<Order, 'id' | 'date' | 'status'>) => ({
+    customer_name: orderData.customerName,
+    customer_last_name: orderData.customerLastName,
+    customer_email: orderData.customerEmail,
+    customer_phone: orderData.customerPhone,
+    customer_address: orderData.customerAddress,
+    customer_dni: orderData.customerDNI,
+    items: orderData.items,
+    total: orderData.total,
+    status: 'pendiente',
+    tracking_number: ''
+});
+
 export const useOrderStore = create<OrderStore>()(
     persist(
         (set) => ({
             orders: [],
+            status: 'idle',
+            error: null,
+
             fetchOrders: async () => {
-                const { data, error } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .order('date', { ascending: false });
+                set({ status: 'loading', error: null });
+                try {
+                    const { data, error } = await supabase
+                        .from('orders')
+                        .select('*')
+                        .order('date', { ascending: false });
 
-                if (data && !error) {
-                    const mappedOrders: Order[] = data.map(o => ({
-                        id: o.id,
-                        customerName: o.customer_name,
-                        customerLastName: o.customer_last_name,
-                        customerEmail: o.customer_email,
-                        customerPhone: o.customer_phone,
-                        customerAddress: o.customer_address,
-                        customerDNI: o.customer_dni,
-                        date: o.date,
-                        items: o.items,
-                        total: o.total,
-                        status: o.status,
-                        trackingNumber: o.tracking_number
-                    }));
-                    set({ orders: mappedOrders });
+                    if (error) throw error;
+                    set({ orders: (data || []).map(mapOrderFromDB), status: 'idle' });
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
                 }
             },
+
             addOrder: async (orderData) => {
-                const newId = `ORD-${Math.floor(Math.random() * 800 + 100)}`;
-                const newOrder = {
-                    id: newId,
-                    customer_name: orderData.customerName,
-                    customer_last_name: orderData.customerLastName,
-                    customer_email: orderData.customerEmail,
-                    customer_phone: orderData.customerPhone,
-                    customer_address: orderData.customerAddress,
-                    customer_dni: orderData.customerDNI,
-                    items: orderData.items,
-                    total: orderData.total,
-                    status: 'pendiente',
-                    tracking_number: ''
-                };
-
-                const { data, error } = await supabase
-                    .from('orders')
-                    .insert([newOrder])
-                    .select();
-
-                if (error) throw error;
-                if (data) {
-                    const mapped = {
-                        id: data[0].id,
-                        customerName: data[0].customer_name,
-                        customerLastName: data[0].customer_last_name,
-                        customerEmail: data[0].customer_email,
-                        customerPhone: data[0].customer_phone,
-                        customerAddress: data[0].customer_address,
-                        customerDNI: data[0].customer_dni,
-                        date: data[0].date,
-                        items: data[0].items,
-                        total: data[0].total,
-                        status: data[0].status,
-                        trackingNumber: data[0].tracking_number
+                set({ status: 'loading', error: null });
+                try {
+                    // Generación de ID amigable (Mejorable con DB Sequence en el futuro)
+                    const newId = `ORD-${Math.floor(Math.random() * 800 + 100)}`;
+                    const dbOrder = {
+                        id: newId,
+                        ...mapOrderToDB(orderData)
                     };
-                    set((state) => ({ orders: [mapped, ...state.orders] }));
+
+                    const { data, error } = await supabase
+                        .from('orders')
+                        .insert([dbOrder])
+                        .select();
+
+                    if (error) throw error;
+
+                    if (data) {
+                        const mapped = mapOrderFromDB(data[0]);
+                        set((state) => ({
+                            orders: [mapped, ...state.orders],
+                            status: 'idle'
+                        }));
+                    }
+                    return newId;
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
                 }
-                return newId;
             },
+
             updateOrderStatus: async (id, status) => {
-                const { error } = await supabase
-                    .from('orders')
-                    .update({ status })
-                    .eq('id', id);
+                set({ status: 'loading', error: null });
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .update({ status })
+                        .eq('id', id);
 
-                if (error) throw error;
-                set((state) => ({
-                    orders: state.orders.map(o => o.id === id ? { ...o, status } : o)
-                }));
+                    if (error) throw error;
+                    set((state) => ({
+                        orders: state.orders.map(o => o.id === id ? { ...o, status } : o),
+                        status: 'idle'
+                    }));
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
+                }
             },
+
             updateTrackingNumber: async (id, trackingNumber) => {
-                const { error } = await supabase
-                    .from('orders')
-                    .update({ tracking_number: trackingNumber })
-                    .eq('id', id);
+                set({ status: 'loading', error: null });
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .update({ tracking_number: trackingNumber })
+                        .eq('id', id);
 
-                if (error) throw error;
-                set((state) => ({
-                    orders: state.orders.map(o => o.id === id ? { ...o, trackingNumber } : o)
-                }));
+                    if (error) throw error;
+                    set((state) => ({
+                        orders: state.orders.map(o => o.id === id ? { ...o, trackingNumber } : o),
+                        status: 'idle'
+                    }));
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
+                }
             },
-            deleteOrder: async (id) => {
-                const { error } = await supabase
-                    .from('orders')
-                    .delete()
-                    .eq('id', id);
 
-                if (error) throw error;
-                set((state) => ({
-                    orders: state.orders.filter(o => o.id !== id)
-                }));
+            deleteOrder: async (id) => {
+                set({ status: 'loading', error: null });
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+                    set((state) => ({
+                        orders: state.orders.filter(o => o.id !== id),
+                        status: 'idle'
+                    }));
+                } catch (err: any) {
+                    set({ status: 'error', error: err.message });
+                    throw err;
+                }
             },
         }),
-        { name: 'dos-lidias-orders-v4' }
+        { name: 'dos-lidias-orders-v5' }
     )
 );
+

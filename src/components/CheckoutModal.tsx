@@ -18,7 +18,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
     const [step, setStep] = useState<'auth' | 'select' | 'processing' | 'bank_details' | 'external_payment' | 'success'>(user ? 'select' : 'auth');
     const [paymentMethod, setPaymentMethod] = useState<string>('');
     const [orderId, setOrderId] = useState('');
-    const { addOrder } = useOrderStore();
+    const { addOrder, status: orderStatus } = useOrderStore();
     const { settings } = useSettingsStore();
 
     // Detectar retorno de Mercado Pago
@@ -332,16 +332,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, total, i
                                     </div>
                                 )}
 
-                                {step === 'processing' && (
+                                {(step === 'processing' || orderStatus === 'loading') && (
                                     <div className="py-20 flex flex-col items-center justify-center text-center">
                                         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6"></div>
                                         <h3 className="text-xl font-bold mb-2">
-                                            {paymentMethod === 'Mayorista' ? 'Registrando Pedido' : 'Comprobando Pago'}
+                                            {paymentMethod === 'Mayorista' ? 'Registrando Pedido' : 'Procesando...'}
                                         </h3>
                                         <p className="text-text-muted text-sm italic">
-                                            {paymentMethod === 'Mayorista'
-                                                ? 'Estamos procesando tu solicitud mayorista...'
-                                                : `Estamos recibiendo la confirmación de ${paymentMethod}...`}
+                                            Por favor, no cierres esta ventana...
                                         </p>
                                     </div>
                                 )}

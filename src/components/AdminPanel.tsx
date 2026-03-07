@@ -25,7 +25,8 @@ import {
     MessageCircle,
     Users,
     History,
-    Upload
+    Upload,
+    Loader2
 } from 'lucide-react';
 import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -36,11 +37,11 @@ import { useAdminAuthStore } from '../store/useAdminAuthStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts } = useProductStore();
-    const { settings, updateSettings, fetchSettings } = useSettingsStore();
-    const { allUsers } = useAuthStore();
-    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders } = useOrderStore();
-    const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery } = useGalleryStore();
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, status: productStatus, error: productError } = useProductStore();
+    const { settings, updateSettings, fetchSettings, status: settingsStatus, error: settingsError } = useSettingsStore();
+    const { allUsers, status: authStatus, error: authError } = useAuthStore();
+    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
+    const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus, error: galleryError } = useGalleryStore();
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
@@ -616,7 +617,21 @@ const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50">
-                                            {products.length === 0 ? (
+                                            {productStatus === 'loading' ? (
+                                                <tr>
+                                                    <td colSpan={3} className="py-20 text-center">
+                                                        <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
+                                                        <p className="font-black uppercase tracking-[0.2em] text-xs animate-pulse">Cargando...</p>
+                                                    </td>
+                                                </tr>
+                                            ) : productError ? (
+                                                <tr>
+                                                    <td colSpan={3} className="py-20 text-center text-red-500">
+                                                        <Package size={40} className="mx-auto mb-4 opacity-50" />
+                                                        <p className="font-black uppercase tracking-[0.2em] text-xs">{productError}</p>
+                                                    </td>
+                                                </tr>
+                                            ) : products.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={3} className="py-20 text-center">
                                                         <div className="flex flex-col items-center opacity-20">
@@ -717,7 +732,21 @@ const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50 relative">
-                                            {filteredOrders.length > 0 ? filteredOrders.map(order => (
+                                            {orderStatus === 'loading' && filteredOrders.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={4} className="py-32 text-center">
+                                                        <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
+                                                        <p className="font-black uppercase tracking-[0.2em] text-xs animate-pulse">Sincronizando...</p>
+                                                    </td>
+                                                </tr>
+                                            ) : orderError ? (
+                                                <tr>
+                                                    <td colSpan={4} className="py-32 text-center text-red-500">
+                                                        <Truck size={40} className="mx-auto mb-4 opacity-50" />
+                                                        <p className="font-black uppercase tracking-[0.2em] text-xs">{orderError}</p>
+                                                    </td>
+                                                </tr>
+                                            ) : filteredOrders.length > 0 ? filteredOrders.map(order => (
                                                 <tr key={order.id} className="group hover:bg-white transition-all duration-300">
                                                     <td className="relative">
                                                         <div className="flex flex-col gap-1">
@@ -1289,8 +1318,13 @@ const AdminPanel: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                                    {galleryImages.length > 0 ? galleryImages.map((image) => (
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 relative">
+                                    {galleryStatus === 'loading' && galleryImages.length === 0 ? (
+                                        <div className="col-span-full py-20 text-center">
+                                            <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
+                                            <p className="font-black uppercase tracking-[0.2em] text-xs animate-pulse">Sincronizando...</p>
+                                        </div>
+                                    ) : galleryImages.length > 0 ? galleryImages.map((image) => (
                                         <motion.div
                                             key={image.id}
                                             layout
@@ -1356,54 +1390,62 @@ const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50">
-                                            {allUsers
-                                                .filter(u =>
-                                                    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                    u.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                    u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                    u.docNumber.includes(searchQuery)
-                                                )
-                                                .map(customer => {
-                                                    const customerOrders = orders.filter(o => o.customerEmail === customer.email);
-                                                    return (
-                                                        <tr key={customer.id} className="group hover:bg-slate-50/20 transition-all">
-                                                            <td>
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-12 h-12 bg-primary/5 rounded-[16px] flex items-center justify-center text-primary font-black text-xl">
-                                                                        {customer.name[0]}{customer.lastName[0]}
+                                            {allUsers.length === 0 && searchQuery === '' ? (
+                                                <tr>
+                                                    <td colSpan={5} className="py-20 text-center">
+                                                        <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
+                                                        <p className="font-black uppercase tracking-[0.2em] text-xs animate-pulse">Sincronizando...</p>
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                allUsers
+                                                    .filter(u =>
+                                                        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                                        u.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                                        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                                        u.docNumber.includes(searchQuery)
+                                                    )
+                                                    .map(customer => {
+                                                        const customerOrders = orders.filter(o => o.customerEmail === customer.email);
+                                                        return (
+                                                            <tr key={customer.id} className="group hover:bg-slate-50/20 transition-all">
+                                                                <td>
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className="w-12 h-12 bg-primary/5 rounded-[16px] flex items-center justify-center text-primary font-black text-xl">
+                                                                            {customer.name[0]}{customer.lastName[0]}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="font-extrabold text-slate-800 text-lg leading-none">{customer.name} {customer.lastName}</p>
+                                                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">ID: {customer.id}</p>
+                                                                        </div>
                                                                     </div>
-                                                                    <div>
-                                                                        <p className="font-extrabold text-slate-800 text-lg leading-none">{customer.name} {customer.lastName}</p>
-                                                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">ID: {customer.id}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <p className="font-bold text-slate-600 text-sm">{customer.email}</p>
+                                                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{customer.docType} {customer.docNumber}</p>
+                                                                </td>
+                                                                <td className="text-slate-400 font-bold text-sm">
+                                                                    {new Date(customer.birthDate).toLocaleDateString('es-AR')}
+                                                                </td>
+                                                                <td className="text-right">
+                                                                    <div className="flex flex-col items-end">
+                                                                        <span className="font-black text-slate-800 text-xl tracking-tighter">{customerOrders.length}</span>
+                                                                        <span className="text-[9px] font-black text-slate-200 uppercase tracking-widest">Registrados</span>
                                                                     </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <p className="font-bold text-slate-600 text-sm">{customer.email}</p>
-                                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{customer.docType} {customer.docNumber}</p>
-                                                            </td>
-                                                            <td className="text-slate-400 font-bold text-sm">
-                                                                {new Date(customer.birthDate).toLocaleDateString('es-AR')}
-                                                            </td>
-                                                            <td className="text-right">
-                                                                <div className="flex flex-col items-end">
-                                                                    <span className="font-black text-slate-800 text-xl tracking-tighter">{customerOrders.length}</span>
-                                                                    <span className="text-[9px] font-black text-slate-200 uppercase tracking-widest">Registrados</span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="text-right">
-                                                                <button
-                                                                    onClick={() => setSelectedCustomer(customer)}
-                                                                    className="p-4 bg-slate-50/80 text-slate-300 rounded-[20px] hover:bg-primary/10 hover:text-primary transition-all active:scale-95 flex items-center gap-2 ml-auto"
-                                                                >
-                                                                    <History size={18} />
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest">Ver Historial</span>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })
-                                            }
+                                                                </td>
+                                                                <td className="text-right">
+                                                                    <button
+                                                                        onClick={() => setSelectedCustomer(customer)}
+                                                                        className="p-4 bg-slate-50/80 text-slate-300 rounded-[20px] hover:bg-primary/10 hover:text-primary transition-all active:scale-95 flex items-center gap-2 ml-auto"
+                                                                    >
+                                                                        <History size={18} />
+                                                                        <span className="text-[10px] font-black uppercase tracking-widest">Ver Historial</span>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>

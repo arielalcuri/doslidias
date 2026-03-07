@@ -18,7 +18,7 @@ function App() {
     const { products, fetchProducts } = useProductStore();
     const { settings, fetchSettings } = useSettingsStore();
     const { fetchGallery } = useGalleryStore();
-    const { isAuthModalOpen, setAuthModalOpen } = useAuthStore();
+    const { isAuthModalOpen, setAuthModalOpen, checkUser } = useAuthStore();
     const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -32,6 +32,7 @@ function App() {
     const [priceOrder, setPriceOrder] = useState<'default' | 'asc' | 'desc'>('default');
 
     useEffect(() => {
+        checkUser();
         fetchSettings();
         fetchProducts();
         fetchGallery();

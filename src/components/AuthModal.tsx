@@ -10,7 +10,8 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     const [mode, setMode] = useState<'login' | 'register'>('login');
-    const { login, register, status } = useAuthStore();
+    const { login, register, status, error: storeError } = useAuthStore();
+    const [localError, setLocalError] = useState<string | null>(null);
 
     // Form States
     const [email, setEmail] = useState('');
@@ -30,34 +31,42 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLocalError(null);
 
-        if (mode === 'register') {
-            if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
-                return;
+        try {
+            if (mode === 'register') {
+                if (password !== confirmPassword) {
+                    setLocalError('Las contraseñas no coinciden');
+                    return;
+                }
+
+                // Validation for DNI
+                if (docType === 'DNI' && (!/^\d{8}$/.test(docNumber))) {
+                    setLocalError('El DNI debe tener 8 dígitos numéricos');
+                    return;
+                }
+
+                await register({
+                    name,
+                    lastName,
+                    email,
+                    birthDate,
+                    docType,
+                    docNumber,
+                    phone,
+                    address,
+                    otherDocType: docType === 'Otro' ? otherDocType : undefined
+                }, password);
+            } else {
+                await login(email, password);
             }
 
-            // Validation for DNI
-            if (docType === 'DNI' && (!/^\d{8}$/.test(docNumber))) {
-                alert('El DNI debe tener 8 dígitos numéricos');
-                return;
-            }
-
-            await register({
-                name,
-                lastName,
-                email,
-                birthDate,
-                docType,
-                docNumber,
-                phone,
-                address,
-                otherDocType: docType === 'Otro' ? otherDocType : undefined
-            }, password);
-        } else {
-            await login(email, password);
+            // Si llegamos aquí sin que las funciones del store lancen error
+            onClose();
+        } catch (err: any) {
+            // El error ya se guarda en el store, pero lo capturamos aquí para evitar el onClose()
+            console.error(err);
         }
-        onClose();
     };
 
     const handleDocNumberChange = (val: string) => {
@@ -104,6 +113,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                         {mode === 'login' ? 'Tus piezas favoritas te están esperando.' : 'Únete a Dos Lidias y sigue tus pedidos.'}
                                     </p>
                                 </div>
+
+                                {(storeError || localError) && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium flex items-center gap-3"
+                                    >
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                                        {localError || storeError}
+                                    </motion.div>
+                                )}
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
                                     {mode === 'register' && (

@@ -37,10 +37,10 @@ import { useAdminAuthStore } from '../store/useAdminAuthStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, status: productStatus } = useProductStore();
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, status: productStatus, error: productError } = useProductStore();
     const { settings, updateSettings, fetchSettings } = useSettingsStore();
-    const { status: authStatus } = useAuthStore();
-    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus } = useOrderStore();
+    useAuthStore();
+    const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus } = useGalleryStore();
     const allUsers: any[] = []; // Provisional fix for missing property
 

@@ -120,9 +120,12 @@ const AdminPanel: React.FC = () => {
                     await addToGallery(data.secure_url);
                     alert('Imagen subida y guardada en la base de datos');
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error uploading to Cloudinary:', error);
-                alert('Error al subir la imagen. Por favor intenta de nuevo.');
+                const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+                alert(isNetworkError
+                    ? 'Error de conexión: Revisa tu internet para subir la imagen.'
+                    : 'Error al subir la imagen. Por favor intenta de nuevo.');
             } finally {
                 setIsUploading(false);
             }
@@ -143,7 +146,10 @@ const AdminPanel: React.FC = () => {
             alert('Producto guardado correctamente');
         } catch (error: any) {
             console.error('Error saving product:', error);
-            alert(`Error al guardar: ${error.message || 'Verifica que la base de datos tenga la columna "variants"'}`);
+            const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+            alert(isNetworkError
+                ? 'Error de conexión: Verifica tu internet e intenta de nuevo.'
+                : `Error al guardar: ${error.message || 'Verifica que la base de datos sea accesible.'}`);
         }
     };
 
@@ -151,9 +157,12 @@ const AdminPanel: React.FC = () => {
         try {
             await updateSettings(tempSettings);
             alert('Configuración guardada correctamente');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving settings:', error);
-            alert('Error al guardar la configuración');
+            const isNetworkError = error.message?.includes('fetch') || error.name === 'TypeError';
+            alert(isNetworkError
+                ? 'Error de conexión: No se pudieron guardar los ajustes.'
+                : 'Error al guardar la configuración.');
         }
     };
 

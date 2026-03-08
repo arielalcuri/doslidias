@@ -7,12 +7,12 @@ const MusicPlayer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // URL de una música relax (Ambient / Nature sounds - Source: OrangeFreeSounds)
-    const audioUrl = "https://www.orangefreesounds.com/wp-content/uploads/2021/08/Peaceful-ambient-music.mp3";
+    // URL de una música relax (Acoustic Guitar - David Szesztay - Morning)
+    const audioUrl = "https://archive.org/download/Acoustic_Guitar_David_Szesztay/David_Szesztay_-_Acoustic_Guitar_-_01_Morning.mp3";
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = 0.3; // Volumen bajo para ambientación
+            audioRef.current.volume = 0.35; // Volumen suave
         }
     }, []);
 
@@ -44,7 +44,7 @@ const MusicPlayer: React.FC = () => {
 
     return (
         <div className="fixed bottom-28 right-8 z-[90]">
-            <audio ref={audioRef} src={audioUrl} loop crossOrigin="anonymous" />
+            <audio ref={audioRef} src={audioUrl} loop />
 
             <AnimatePresence>
                 {isVisible && (

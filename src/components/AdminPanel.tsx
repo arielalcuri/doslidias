@@ -26,7 +26,11 @@ import {
     Users,
     History,
     Upload,
-    Loader2
+    Loader2,
+    BarChart3,
+    TrendingUp,
+    Calendar,
+    Activity
 } from 'lucide-react';
 import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -34,6 +38,7 @@ import { useOrderStore, Order } from '../store/useOrderStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGalleryStore } from '../store/useGalleryStore';
 import { useAdminAuthStore } from '../store/useAdminAuthStore';
+import { useStatsStore } from '../store/useStatsStore';
 import Logo from './Logo';
 
 const AdminPanel: React.FC = () => {
@@ -42,6 +47,7 @@ const AdminPanel: React.FC = () => {
     const { profiles, fetchProfiles, status: authStoreStatus } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus } = useGalleryStore();
+    const { totalVisits, visitsToday, visitsLast7Days, visitsByDay, fetchStats, status: statsStatus } = useStatsStore();
     const allUsers = React.useMemo(() => {
         const uniqueCustomers = new Map();
 
@@ -71,7 +77,7 @@ const AdminPanel: React.FC = () => {
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
-    const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery'>('inventory');
+    const [activeTab, setActiveTab] = useState<'inventory' | 'payments' | 'settings' | 'orders' | 'customers' | 'gallery' | 'metrics'>('inventory');
 
     // Cargar datos al montar el panel
     React.useEffect(() => {
@@ -81,7 +87,8 @@ const AdminPanel: React.FC = () => {
                 fetchSettings(),
                 fetchGallery(),
                 fetchOrders(),
-                fetchProfiles()
+                fetchProfiles(),
+                fetchStats()
             ]);
         };
         loadData();
@@ -341,6 +348,18 @@ const AdminPanel: React.FC = () => {
                         onClick={() => setActiveTab('customers')}
                         icon={<Users size={18} />}
                         label="Clientes"
+                    />
+                    <NavItem
+                        active={activeTab === 'metrics'}
+                        onClick={() => setActiveTab('metrics')}
+                        icon={<BarChart3 size={18} />}
+                        label="Métricas"
+                    />
+                    <NavItem
+                        active={activeTab === 'metrics'}
+                        onClick={() => setActiveTab('metrics')}
+                        icon={<BarChart3 size={18} />}
+                        label="Métricas"
                     />
                     <NavItem
                         active={activeTab === 'gallery'}
@@ -1385,6 +1404,98 @@ const AdminPanel: React.FC = () => {
                                         <div className="col-span-full py-20 text-center opacity-40">
                                             <ImageIcon size={64} className="mx-auto mb-4 stroke-1" />
                                             <p className="italic">No hay imágenes en la galería aún.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'metrics' && (
+                            <motion.div
+                                key="metrics"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-12 animate-up"
+                            >
+                                <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+                                    <div className="space-y-3">
+                                        <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Métricas del Sitio</h2>
+                                        <p className="text-slate-400 font-medium text-lg italic">Analiza el impacto y tráfico de tu tienda.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => fetchStats()}
+                                        className="btn-primary flex items-center gap-3 h-12 px-6"
+                                        disabled={statsStatus === 'loading'}
+                                    >
+                                        {statsStatus === 'loading' ? <Loader2 className="animate-spin" size={18} /> : <Activity size={18} />}
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Actualizar Datos</span>
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="glass-card p-10 space-y-4 border-slate-100 shadow-premium relative overflow-hidden group">
+                                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-1000" />
+                                        <TrendingUp className="text-primary" size={32} />
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Visitas Totales</p>
+                                            <p className="text-5xl font-black text-slate-900 display-font tracking-tighter tabular-nums">{totalVisits.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-card p-10 space-y-4 border-slate-100 shadow-premium relative overflow-hidden group">
+                                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-slate-500/5 rounded-full group-hover:scale-150 transition-transform duration-1000" />
+                                        <Calendar className="text-slate-500" size={32} />
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Visitas Hoy</p>
+                                            <p className="text-5xl font-black text-slate-900 display-font tracking-tighter tabular-nums">{visitsToday.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-card p-10 space-y-4 border-slate-100 shadow-premium relative overflow-hidden group">
+                                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-1000" />
+                                        <BarChart3 className="text-blue-500" size={32} />
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Últimos 7 días</p>
+                                            <p className="text-5xl font-black text-slate-900 display-font tracking-tighter tabular-nums">{visitsLast7Days.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="glass-card p-12 border-slate-100 shadow-premium">
+                                    <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-10 border-b border-slate-50 pb-6 flex items-center gap-4">
+                                        <Activity size={24} className="text-primary" /> Actividad Diaria (Últimos 7 días)
+                                    </h3>
+
+                                    {visitsByDay.length > 0 ? (
+                                        <div className="h-64 flex items-end justify-between gap-4">
+                                            {visitsByDay.map((day, idx) => {
+                                                const maxVisits = Math.max(...visitsByDay.map(d => d.count), 1);
+                                                const height = (day.count / maxVisits) * 100;
+                                                const isToday = day.date === new Date().toISOString().split('T')[0];
+
+                                                return (
+                                                    <div key={idx} className="flex-1 flex flex-col items-center gap-4 group">
+                                                        <div className="w-full relative">
+                                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-black opacity-0 group-hover:opacity-100 transition-all shadow-xl pointer-events-none z-10">
+                                                                {day.count} visitas
+                                                            </div>
+                                                            <motion.div
+                                                                initial={{ height: 0 }}
+                                                                animate={{ height: `${height}%` }}
+                                                                className={`w-full rounded-2xl shadow-lg transition-all duration-500 cursor-help ${isToday ? 'bg-primary shadow-primary/30' : 'bg-slate-200 group-hover:bg-slate-300'}`}
+                                                            />
+                                                        </div>
+                                                        <span className={`text-[9px] font-black uppercase tracking-widest ${isToday ? 'text-primary' : 'text-slate-400'}`}>
+                                                            {new Date(day.date + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'short' })}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="h-64 flex items-center justify-center border-2 border-dashed border-slate-50 rounded-[32px] bg-slate-50/30">
+                                            <p className="text-slate-400 font-bold italic">No hay datos suficientes aún...</p>
                                         </div>
                                     )}
                                 </div>

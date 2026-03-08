@@ -12,6 +12,7 @@ import { useAuthStore } from './store/useAuthStore';
 import AdminPanel from './components/AdminPanel';
 import AuthModal from './components/AuthModal';
 import { useGalleryStore } from './store/useGalleryStore';
+import { useStatsStore } from './store/useStatsStore';
 import { MessageCircle, Truck, ShieldCheck, Palette, MapPin, Search, SlidersHorizontal, ArrowUpDown, X as XIcon, Users } from 'lucide-react';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
     const { settings, fetchSettings } = useSettingsStore();
     const { fetchGallery } = useGalleryStore();
     const { isAuthModalOpen, setAuthModalOpen, checkUser } = useAuthStore();
+    const { trackVisit } = useStatsStore();
     const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -36,6 +38,10 @@ function App() {
         fetchSettings();
         fetchProducts();
         fetchGallery();
+
+        // Track visit
+        const isAdmin = window.location.pathname === '/admin';
+        trackVisit(window.location.pathname, isAdmin);
     }, []);
 
     useEffect(() => {

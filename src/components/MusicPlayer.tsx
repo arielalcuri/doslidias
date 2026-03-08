@@ -7,12 +7,12 @@ const MusicPlayer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // URL de una música relax (Guitarra acústica suave - Pixabay)
-    const audioUrl = "https://cdn.pixabay.com/audio/2022/03/15/audio_73229b439c.mp3";
+    // URL de una música relax (Ambient / Nature sounds - Source: OrangeFreeSounds)
+    const audioUrl = "https://www.orangefreesounds.com/wp-content/uploads/2021/08/Peaceful-ambient-music.mp3";
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = 0.4; // Volumen más bajo para que no sea invasivo
+            audioRef.current.volume = 0.3; // Volumen bajo para ambientación
         }
     }, []);
 
@@ -44,7 +44,7 @@ const MusicPlayer: React.FC = () => {
 
     return (
         <div className="fixed bottom-28 right-8 z-[90]">
-            <audio ref={audioRef} src={audioUrl} loop />
+            <audio ref={audioRef} src={audioUrl} loop crossOrigin="anonymous" />
 
             <AnimatePresence>
                 {isVisible && (

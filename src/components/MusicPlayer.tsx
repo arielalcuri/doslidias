@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Music, Music2, Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import { Music, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MusicPlayer: React.FC = () => {
@@ -14,14 +14,23 @@ const MusicPlayer: React.FC = () => {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
+                setIsPlaying(false);
             } else {
-                audioRef.current.play().catch(err => console.log("User interaction required for audio"));
+                audioRef.current.play()
+                    .then(() => setIsPlaying(true))
+                    .catch(() => console.log("User interaction required for audio"));
             }
-            setIsPlaying(!isPlaying);
         }
     };
 
     useEffect(() => {
+        // Intentar reproducir automáticamente al cargar
+        if (audioRef.current) {
+            audioRef.current.play()
+                .then(() => setIsPlaying(true))
+                .catch(() => console.log("Autoplay blocked by browser. Music will start on user interaction."));
+        }
+
         // Mostrar el botón después de un pequeño delay
         const timer = setTimeout(() => setIsVisible(true), 2000);
         return () => clearTimeout(timer);
@@ -55,8 +64,8 @@ const MusicPlayer: React.FC = () => {
                         <button
                             onClick={togglePlay}
                             className={`w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 relative group overflow-hidden ${isPlaying
-                                    ? 'bg-white text-primary border-2 border-primary/20'
-                                    : 'bg-white/80 backdrop-blur-md text-slate-400 border border-slate-100 hover:text-primary hover:bg-white'
+                                ? 'bg-white text-primary border-2 border-primary/20'
+                                : 'bg-white/80 backdrop-blur-md text-slate-400 border border-slate-100 hover:text-primary hover:bg-white'
                                 }`}
                         >
                             <AnimatePresence mode="wait">

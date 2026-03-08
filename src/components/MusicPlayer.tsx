@@ -7,12 +7,14 @@ const MusicPlayer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // URL de una música relax (Acoustic Guitar - David Szesztay - Morning)
-    const audioUrl = "https://archive.org/download/Acoustic_Guitar_David_Szesztay/David_Szesztay_-_Acoustic_Guitar_-_01_Morning.mp3";
+    // URL de una música relax (Acoustic Guitar - Peaceful)
+    const audioUrl = "https://www.chosic.com/wp-content/uploads/2021/07/Before-the-dawn.mp3";
+
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = 0.35; // Volumen suave
+            audioRef.current.volume = 0.3;
         }
     }, []);
 
@@ -44,7 +46,13 @@ const MusicPlayer: React.FC = () => {
 
     return (
         <div className="fixed bottom-28 right-8 z-[90]">
-            <audio ref={audioRef} src={audioUrl} loop />
+            <audio
+                ref={audioRef}
+                src={audioUrl}
+                loop
+                onWaiting={() => setIsLoading(true)}
+                onCanPlay={() => setIsLoading(false)}
+            />
 
             <AnimatePresence>
                 {isVisible && (
@@ -57,12 +65,21 @@ const MusicPlayer: React.FC = () => {
                         {/* Tooltip / Status */}
                         <div className={`mr-4 px-4 py-2 bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl shadow-premium transition-all duration-500 transform ${isPlaying ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
                             <p className="text-[10px] font-black text-primary uppercase tracking-widest whitespace-nowrap flex items-center gap-2">
-                                <div className="flex gap-0.5 items-center h-2">
-                                    <div className="w-0.5 h-full bg-primary animate-music-1" />
-                                    <div className="w-0.5 h-full bg-primary animate-music-2" />
-                                    <div className="w-0.5 h-full bg-primary animate-music-3" />
-                                </div>
-                                Modo Relax Activo
+                                {isLoading ? (
+                                    <div className="flex gap-0.5 items-center h-2">
+                                        <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                                        Cargando Zen...
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex gap-0.5 items-center h-2">
+                                            <div className="w-0.5 h-full bg-primary animate-music-1" />
+                                            <div className="w-0.5 h-full bg-primary animate-music-2" />
+                                            <div className="w-0.5 h-full bg-primary animate-music-3" />
+                                        </div>
+                                        Modo Relax Activo
+                                    </>
+                                )}
                             </p>
                         </div>
 

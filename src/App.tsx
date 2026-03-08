@@ -44,14 +44,16 @@ function App() {
         // Track visit
         const isAdmin = window.location.pathname === '/admin';
         trackVisit(window.location.pathname, isAdmin);
+    }, []);
 
-        // Check for deep-link product parameter
+    // Effect for deep-linking
+    useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const pId = urlParams.get('p');
-        if (pId) {
+        if (pId && products.length > 0) {
             setHighlightedProductId(pId);
         }
-    }, [products]);
+    }, [products, window.location.search]);
 
     useEffect(() => {
         if (settings.heroImages && settings.heroImages.length > 1) {

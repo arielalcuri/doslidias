@@ -356,12 +356,6 @@ const AdminPanel: React.FC = () => {
                         label="Métricas"
                     />
                     <NavItem
-                        active={activeTab === 'metrics'}
-                        onClick={() => setActiveTab('metrics')}
-                        icon={<BarChart3 size={18} />}
-                        label="Métricas"
-                    />
-                    <NavItem
                         active={activeTab === 'gallery'}
                         onClick={() => setActiveTab('gallery')}
                         icon={<ImageIcon size={18} />}

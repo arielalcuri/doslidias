@@ -21,6 +21,7 @@ interface Settings {
     bankAlias: string;
     bankDiscount: number;
     potNumbers: string[];
+    statsResetDate?: string;
 }
 
 interface SettingsStore {

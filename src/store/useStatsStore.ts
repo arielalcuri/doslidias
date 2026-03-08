@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { useSettingsStore } from './useSettingsStore';
 
 interface StatsStore {
     totalVisits: number;
@@ -34,11 +35,20 @@ export const useStatsStore = create<StatsStore>((set) => ({
     fetchStats: async () => {
         set({ status: 'loading' });
         try {
+            const { settings } = useSettingsStore.getState();
+
             // Get all non-admin visits (not explicitly admin)
-            const { data, error } = await supabase
+            let query = supabase
                 .from('page_views')
                 .select('created_at')
                 .neq('is_admin', true);
+
+            // Filter by reset date if present
+            if (settings.statsResetDate) {
+                query = query.gt('created_at', settings.statsResetDate);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -94,15 +104,27 @@ export const useStatsStore = create<StatsStore>((set) => ({
     resetStats: async () => {
         set({ status: 'loading' });
         try {
-            // Eliminar todas las vistas que no son explícitamente de admin
+            const { settings, updateSettings } = useSettingsStore.getState();
+            const now = new Date().toISOString();
+
+            // Guardar fecha de reseteo en ajustes (Reset Virtual)
+            await updateSettings({
+                ...settings,
+                statsResetDate: now
+            });
+
+            // Intento de borrado real (Best effort - por si tiene permisos)
             const { error, count } = await supabase
                 .from('page_views')
                 .delete({ count: 'exact' })
                 .neq('is_admin', true);
 
-            if (error) throw error;
+            // Incluso si el borrado falla o no tiene permisos, el reset virtual ya funcionó
+            if (error) {
+                console.warn('Real delete failed, but virtual reset is active.', error);
+            }
 
-            console.log(`Métricas reseteadas. Se eliminaron ${count} registros.`);
+            console.log(`Métricas reseteadas virtualmente. Borrado real afectó a ${count || 0} registros.`);
 
             set({
                 totalVisits: 0,
@@ -111,7 +133,7 @@ export const useStatsStore = create<StatsStore>((set) => ({
                 visitsByDay: [],
                 status: 'idle'
             });
-            alert(`Métricas reseteadas correctamente. Se eliminaron ${count || 0} visitas del historial.`);
+            alert(`Métricas reseteadas correctamente. Se estableció la fecha de inicio a partir de ahora.`);
         } catch (err: any) {
             console.error('Error resetting stats:', err);
             set({ status: 'error' });

@@ -33,6 +33,7 @@ function App() {
     const [selectedTheme, setSelectedTheme] = useState('Todos');
     const [selectedSubtheme, setSelectedSubtheme] = useState('Todos');
     const [priceOrder, setPriceOrder] = useState<'default' | 'asc' | 'desc'>('default');
+    const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
 
     useEffect(() => {
         checkUser();
@@ -43,7 +44,14 @@ function App() {
         // Track visit
         const isAdmin = window.location.pathname === '/admin';
         trackVisit(window.location.pathname, isAdmin);
-    }, []);
+
+        // Check for deep-link product parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const pId = urlParams.get('p');
+        if (pId) {
+            setHighlightedProductId(pId);
+        }
+    }, [products]);
 
     useEffect(() => {
         if (settings.heroImages && settings.heroImages.length > 1) {
@@ -334,6 +342,7 @@ function App() {
                                     setSelectedTheme('Todos');
                                     setSelectedSubtheme('Todos');
                                     setPriceOrder('default');
+                                    setHighlightedProductId(null);
                                 }}
                                 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/70 transition-all flex items-center gap-2"
                             >
@@ -353,7 +362,8 @@ function App() {
                             const matchesTheme = selectedTheme === 'Todos' || product.theme === selectedTheme;
                             const matchesSubtheme = selectedSubtheme === 'Todos' || product.subtheme === selectedSubtheme;
                             const matchesSize = selectedSize === 'Todos' || (product.variants && product.variants.some(v => v.size === selectedSize));
-                            return matchesName && matchesCategory && matchesTheme && matchesSubtheme && matchesSize;
+                            const matchesDeepLink = !highlightedProductId || product.id === highlightedProductId;
+                            return matchesName && matchesCategory && matchesTheme && matchesSubtheme && matchesSize && matchesDeepLink;
                         }).sort((a, b) => {
                             if (priceOrder === 'default') return 0;
                             const priceA = a.variants && a.variants.length > 0 ? Math.min(...a.variants.filter(v => v && typeof v.price === 'number').map(v => v.price)) : (a.price || 0);

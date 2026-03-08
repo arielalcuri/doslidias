@@ -33,7 +33,8 @@ import {
     Activity,
     ChevronLeft,
     ChevronRight,
-    ArrowUpNarrowWide
+    ArrowUpNarrowWide,
+    Download
 } from 'lucide-react';
 import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -411,11 +412,55 @@ const AdminPanel: React.FC = () => {
                                         </div>
                                         <p className="text-slate-400 font-medium text-lg italic">Control de stock, precios y catálogo visual de arte.</p>
                                     </div>
-                                    {!isAdding && (
-                                        <button onClick={() => setIsAdding(true)} className="btn-primary">
-                                            <Plus size={20} /> Agregar Nueva
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => {
+                                                const headers = ['id', 'title', 'description', 'availability', 'condition', 'price', 'link', 'image_link', 'brand', 'google_product_category'];
+
+                                                const rows = products.map(p => {
+                                                    const priceVal = p.variants && p.variants.length > 0
+                                                        ? Math.min(...p.variants.filter(v => typeof v.price === 'number').map(v => v.price))
+                                                        : (p.price || 0);
+
+                                                    const link = `${window.location.origin}/?p=${p.id}`;
+                                                    const desc = p.description.replace(/,/g, ' ').replace(/\n/g, ' ');
+
+                                                    return [
+                                                        p.id,
+                                                        p.name,
+                                                        desc || p.name,
+                                                        'in stock',
+                                                        'new',
+                                                        `${priceVal} ARS`,
+                                                        link,
+                                                        p.image,
+                                                        'Dos Lidias',
+                                                        'Home & Garden > Kitchen & Dining > Tableware > Planters'
+                                                    ].join(',');
+                                                });
+
+                                                const csv = [headers.join(','), ...rows].join('\n');
+                                                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                                                const url = URL.createObjectURL(blob);
+                                                const link = document.createElement('a');
+                                                link.setAttribute('href', url);
+                                                link.setAttribute('download', `catalogo_doslidias_${new Date().toISOString().split('T')[0]}.csv`);
+                                                link.style.visibility = 'hidden';
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                            className="btn-secondary py-3 text-[10px] bg-slate-100 border-none shadow-none hover:bg-slate-200"
+                                            title="Generar archivo CSV para subir a Meta Commerce Manager"
+                                        >
+                                            <Download size={16} /> Exportar para Instagram
                                         </button>
-                                    )}
+                                        {!isAdding && (
+                                            <button onClick={() => setIsAdding(true)} className="btn-primary">
+                                                <Plus size={20} /> Agregar Nueva
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {isAdding && (

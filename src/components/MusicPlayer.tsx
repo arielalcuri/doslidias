@@ -7,16 +7,15 @@ const MusicPlayer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // URL de una música relax (Acoustic Guitar - Peaceful)
-    const audioUrl = "https://www.chosic.com/wp-content/uploads/2021/07/Before-the-dawn.mp3";
-
-    const [isLoading, setIsLoading] = useState(false);
+    // Volvemos a la fuente confiable (SoundHelix) pero con una pista súper sutil
+    const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = 0.3;
+            audioRef.current.volume = 0.2; // Súper bajito
+            console.log("MusicPlayer: Audio URL set to", audioUrl);
         }
-    }, []);
+    }, [audioUrl]);
 
     const togglePlay = () => {
         if (audioRef.current) {
@@ -50,8 +49,8 @@ const MusicPlayer: React.FC = () => {
                 ref={audioRef}
                 src={audioUrl}
                 loop
-                onWaiting={() => setIsLoading(true)}
-                onCanPlay={() => setIsLoading(false)}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
             />
 
             <AnimatePresence>
@@ -65,21 +64,12 @@ const MusicPlayer: React.FC = () => {
                         {/* Tooltip / Status */}
                         <div className={`mr-4 px-4 py-2 bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl shadow-premium transition-all duration-500 transform ${isPlaying ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
                             <p className="text-[10px] font-black text-primary uppercase tracking-widest whitespace-nowrap flex items-center gap-2">
-                                {isLoading ? (
-                                    <div className="flex gap-0.5 items-center h-2">
-                                        <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                                        Cargando Zen...
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="flex gap-0.5 items-center h-2">
-                                            <div className="w-0.5 h-full bg-primary animate-music-1" />
-                                            <div className="w-0.5 h-full bg-primary animate-music-2" />
-                                            <div className="w-0.5 h-full bg-primary animate-music-3" />
-                                        </div>
-                                        Modo Relax Activo
-                                    </>
-                                )}
+                                <div className="flex gap-0.5 items-center h-2">
+                                    <div className="w-0.5 h-full bg-primary animate-music-1" />
+                                    <div className="w-0.5 h-full bg-primary animate-music-2" />
+                                    <div className="w-0.5 h-full bg-primary animate-music-3" />
+                                </div>
+                                Modo Relax Activo
                             </p>
                         </div>
 

@@ -34,11 +34,11 @@ export const useStatsStore = create<StatsStore>((set) => ({
     fetchStats: async () => {
         set({ status: 'loading' });
         try {
-            // Get all non-admin visits
+            // Get all non-admin visits (not explicitly admin)
             const { data, error } = await supabase
                 .from('page_views')
                 .select('created_at')
-                .eq('is_admin', false);
+                .neq('is_admin', true);
 
             if (error) throw error;
 
@@ -94,13 +94,15 @@ export const useStatsStore = create<StatsStore>((set) => ({
     resetStats: async () => {
         set({ status: 'loading' });
         try {
-            // Eliminar todas las vistas que no son de admin
-            const { error } = await supabase
+            // Eliminar todas las vistas que no son explícitamente de admin
+            const { error, count } = await supabase
                 .from('page_views')
-                .delete()
-                .eq('is_admin', false);
+                .delete({ count: 'exact' })
+                .neq('is_admin', true);
 
             if (error) throw error;
+
+            console.log(`Métricas reseteadas. Se eliminaron ${count} registros.`);
 
             set({
                 totalVisits: 0,
@@ -109,9 +111,11 @@ export const useStatsStore = create<StatsStore>((set) => ({
                 visitsByDay: [],
                 status: 'idle'
             });
-        } catch (err) {
+            alert(`Métricas reseteadas correctamente. Se eliminaron ${count || 0} visitas del historial.`);
+        } catch (err: any) {
             console.error('Error resetting stats:', err);
             set({ status: 'error' });
+            alert(`Error al resetear métricas: ${err.message || 'Error de conexión'}`);
         }
     }
 }));

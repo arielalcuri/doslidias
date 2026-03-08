@@ -422,10 +422,10 @@ function App() {
                 className="fixed bottom-8 right-8 w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all z-[100]"
             >
                 <MessageCircle size={32} />
-            </a >
+            </a>
 
             {/* Footer */}
-            < footer className="py-16 bg-[#fafaf8]" >
+            <footer className="py-16 bg-[#fafaf8]">
                 <div className="container mx-auto px-6 text-center flex flex-col items-center">
                     <Logo size="md" />
                     <p className="text-text-muted max-w-md mx-auto mb-8 mt-6 italic">
@@ -446,7 +446,7 @@ function App() {
                         <span className="text-[9px] opacity-30 font-black">STABLE RELEASE v1.0.9 - UX OPTIMIZED</span>
                     </div>
                 </div>
-            </footer >
+            </footer>
 
             <Cart
                 isOpen={isCartOpen}
@@ -488,7 +488,7 @@ function App() {
             />
 
             {!isAdminPage && <MusicPlayer />}
-        </div >
+        </div>
     );
 }
 

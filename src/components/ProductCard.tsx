@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, ShoppingCart } from 'lucide-react';
+import { Plus, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../store/useProductStore';
 
 interface ProductCardProps {
@@ -66,10 +66,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                                 />
                             ))}
                         </div>
-                        {/* Area click to change */}
-                        <div className="absolute inset-0 flex">
-                            <div className="w-1/2 h-full cursor-w-resize" onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }} />
-                            <div className="w-1/2 h-full cursor-e-resize" onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }} />
+                        {/* Arrows */}
+                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between z-20 pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }}
+                                className="w-10 h-10 bg-white/90 backdrop-blur-md text-slate-900 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all pointer-events-auto"
+                                title="Anterior"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }}
+                                className="w-10 h-10 bg-white/90 backdrop-blur-md text-slate-900 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all pointer-events-auto"
+                                title="Siguiente"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
                         </div>
                     </>
                 )}

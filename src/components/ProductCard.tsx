@@ -39,9 +39,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="card-product flex flex-col h-full bg-white rounded-[40px] p-5 shadow-sm hover:shadow-2xl border border-gray-100 group transition-all duration-500"
+            className="card-product flex flex-col h-full bg-white rounded-[40px] p-5 shadow-premium-soft shadow-premium-soft-hover border border-slate-50 group transition-all duration-700 hover:-translate-y-2"
         >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-6 shadow-inner bg-slate-50 relative group/carousel">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-inner bg-slate-50 relative group/carousel">
                 <AnimatePresence mode="wait">
                     <motion.img
                         key={currentImageIndex}

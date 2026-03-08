@@ -22,11 +22,13 @@ export const useStatsStore = create<StatsStore>((set) => ({
 
     trackVisit: async (path, isAdmin = false) => {
         try {
-            await supabase.from('page_views').insert({
+            console.log(`Tracking visit: ${path} (isAdmin: ${isAdmin})`);
+            const { error } = await supabase.from('page_views').insert({
                 page_path: path,
                 user_agent: navigator.userAgent,
                 is_admin: isAdmin
             });
+            if (error) throw error;
         } catch (err) {
             console.error('Error tracking visit:', err);
         }
@@ -36,23 +38,25 @@ export const useStatsStore = create<StatsStore>((set) => ({
         set({ status: 'loading' });
         try {
             const { settings } = useSettingsStore.getState();
+            console.log('Fetching stats using reset date:', settings.statsResetDate);
 
-            // Get all non-admin visits (not explicitly admin)
+            // Get all non-admin visits
+            // Use 'or' to handle is_admin explicitly being false or null
             let query = supabase
                 .from('page_views')
-                .select('created_at')
-                .neq('is_admin', true);
+                .select('created_at, is_admin');
 
-            // Filter by reset date if present
+            // Filter by reset date if present - Using gte to be more inclusive
             if (settings.statsResetDate) {
-                query = query.gt('created_at', settings.statsResetDate);
+                query = query.gte('created_at', settings.statsResetDate);
             }
 
             const { data, error } = await query;
 
             if (error) throw error;
 
-            const visits = data || [];
+            // Manual filter for is_admin to be extra sure (handling nulls)
+            const visits = (data || []).filter(v => v.is_admin !== true);
             const total = visits.length;
 
             const now = new Date();
@@ -88,6 +92,8 @@ export const useStatsStore = create<StatsStore>((set) => ({
                 .map(([date, count]) => ({ date, count }))
                 .sort((a, b) => a.date.localeCompare(b.date));
 
+            console.log(`Fetched ${total} valid visits out of ${data?.length || 0} raw records.`);
+
             set({
                 totalVisits: total,
                 visitsToday: todayCount,
@@ -105,7 +111,7 @@ export const useStatsStore = create<StatsStore>((set) => ({
         set({ status: 'loading' });
         try {
             const { settings, updateSettings } = useSettingsStore.getState();
-            const now = new Date().toISOString();
+            const now = new Date(Date.now() - 60000).toISOString(); // Buffer de 1 minuto para evitar skews de reloj
 
             // Guardar fecha de reseteo en ajustes (Reset Virtual)
             await updateSettings({

@@ -86,13 +86,15 @@ const AdminPanel: React.FC = () => {
     // Cargar datos al montar el panel
     React.useEffect(() => {
         const loadData = async () => {
+            // Cargar ajustes primero para tener la fecha de reseteo correcta
+            await fetchSettings();
+
             await Promise.all([
                 fetchProducts(),
-                fetchSettings(),
                 fetchGallery(),
                 fetchOrders(),
                 fetchProfiles(),
-                fetchStats()
+                fetchStats() // Ahora fetchStats leerá la fecha correcta
             ]);
         };
         loadData();

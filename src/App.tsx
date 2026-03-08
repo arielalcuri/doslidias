@@ -13,6 +13,7 @@ import AdminPanel from './components/AdminPanel';
 import AuthModal from './components/AuthModal';
 import { useGalleryStore } from './store/useGalleryStore';
 import { useStatsStore } from './store/useStatsStore';
+import MusicPlayer from './components/MusicPlayer';
 import { MessageCircle, Truck, ShieldCheck, Palette, MapPin, Search, SlidersHorizontal, ArrowUpDown, X as XIcon, Users } from 'lucide-react';
 
 function App() {
@@ -446,6 +447,8 @@ function App() {
                 isOpen={isAuthModalOpen}
                 onClose={() => setAuthModalOpen(false)}
             />
+
+            {!isAdminPage && <MusicPlayer />}
         </div >
     );
 }

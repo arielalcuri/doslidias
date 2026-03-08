@@ -7,8 +7,14 @@ const MusicPlayer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // URL de una música relax (guitarra acústica suave / ambiente)
-    const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3";
+    // URL de una música relax (Guitarra acústica suave - Pixabay)
+    const audioUrl = "https://cdn.pixabay.com/audio/2022/03/15/audio_73229b439c.mp3";
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = 0.4; // Volumen más bajo para que no sea invasivo
+        }
+    }, []);
 
     const togglePlay = () => {
         if (audioRef.current) {

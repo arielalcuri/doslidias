@@ -1,13 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
-interface Visit {
-    id: string;
-    created_at: string;
-    page_path: string;
-    is_admin: boolean;
-}
-
 interface StatsStore {
     totalVisits: number;
     visitsToday: number;

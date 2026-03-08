@@ -22,15 +22,18 @@ export const useStatsStore = create<StatsStore>((set) => ({
 
     trackVisit: async (path, isAdmin = false) => {
         try {
-            console.log(`Tracking visit: ${path} (isAdmin: ${isAdmin})`);
             const { error } = await supabase.from('page_views').insert({
                 page_path: path,
                 user_agent: navigator.userAgent,
                 is_admin: isAdmin
             });
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Error de Supabase al trackear visita:', error.message, error.details, error.hint);
+                return;
+            }
+            console.log(`✅ Visita registrada: ${path} (Admin: ${isAdmin})`);
         } catch (err) {
-            console.error('Error tracking visit:', err);
+            console.error('❌ Error inesperado al trackear:', err);
         }
     },
 

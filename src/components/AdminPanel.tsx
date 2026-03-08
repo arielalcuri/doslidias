@@ -1578,8 +1578,8 @@ const AdminPanel: React.FC = () => {
                                                                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{customer.docType} {customer.docNumber}</p>
                                                                 </td>
                                                                 <td className="text-slate-400 font-bold text-sm">
-                                                                    {customer.birthDate && !customer.birthDate.includes('T')
-                                                                        ? customer.birthDate.split('-').reverse().join('/')
+                                                                    {customer.birthDate
+                                                                        ? customer.birthDate.split('T')[0].split('-').reverse().join('/')
                                                                         : '-'}
                                                                 </td>
                                                                 <td className="text-right">
@@ -1822,7 +1822,11 @@ const AdminPanel: React.FC = () => {
                                             <div>
                                                 <h3 className="text-4xl font-black text-slate-900 display-font leading-none tracking-tighter">{selectedCustomer.name} {selectedCustomer.lastName}</h3>
                                                 <p className="text-slate-400 font-bold text-sm mt-1">{selectedCustomer.email} • {selectedCustomer.phone || 'Sin Teléfono'}</p>
-                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{selectedCustomer.docType} {selectedCustomer.docNumber} • {selectedCustomer.address || 'Sin Domicilio'}</p>
+                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">
+                                                    {selectedCustomer.docType} {selectedCustomer.docNumber}
+                                                    {selectedCustomer.birthDate && ` • NACIMIENTO: ${selectedCustomer.birthDate.split('T')[0].split('-').reverse().join('/')}`}
+                                                    {selectedCustomer.address && ` • ${selectedCustomer.address}`}
+                                                </p>
                                             </div>
                                         </div>
                                         <button onClick={() => setSelectedCustomer(null)} className="p-2 bg-slate-50 text-slate-300 rounded-[16px] hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"><X size={20} /></button>

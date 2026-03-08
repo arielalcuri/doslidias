@@ -39,11 +39,20 @@ import Logo from './Logo';
 const AdminPanel: React.FC = () => {
     const { products, addProduct, updateProduct, deleteProduct, fetchProducts, status: productStatus, error: productError } = useProductStore();
     const { settings, updateSettings, fetchSettings } = useSettingsStore();
-    useAuthStore();
+    const { profiles, fetchProfiles, status: authStoreStatus } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus } = useGalleryStore();
     const allUsers = React.useMemo(() => {
         const uniqueCustomers = new Map();
+
+        // 1. Agregar perfiles registrados
+        profiles.forEach(p => {
+            uniqueCustomers.set(p.email, {
+                ...p
+            });
+        });
+
+        // 2. Complementar con datos de pedidos (para compras de invitados o histórico)
         orders.forEach(order => {
             if (!uniqueCustomers.has(order.customerEmail)) {
                 uniqueCustomers.set(order.customerEmail, {
@@ -58,7 +67,7 @@ const AdminPanel: React.FC = () => {
             }
         });
         return Array.from(uniqueCustomers.values());
-    }, [orders]);
+    }, [profiles, orders]);
 
     const { isAuthenticated, login: adminLogin, logout: adminLogout, updatePassword } = useAdminAuthStore();
 
@@ -71,7 +80,8 @@ const AdminPanel: React.FC = () => {
                 fetchProducts(),
                 fetchSettings(),
                 fetchGallery(),
-                fetchOrders()
+                fetchOrders(),
+                fetchProfiles()
             ]);
         };
         loadData();
@@ -1419,7 +1429,7 @@ const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50/50">
-                                            {orderStatus === 'loading' && allUsers.length === 0 ? (
+                                            {(orderStatus === 'loading' || authStoreStatus === 'loading') && allUsers.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={5} className="py-20 text-center">
                                                         <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />

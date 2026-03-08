@@ -104,6 +104,9 @@ function App() {
                         </h1>
                         <p className="text-lg md:text-xl text-text-muted mb-10 max-w-lg">
                             {settings.heroSubtitle}
+                            <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mt-3 text-primary/60">
+                                (CONSULTAR POR VENTA MAYORISTA)
+                            </span>
                         </p>
                         <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                             <a href="#tienda" className="btn-primary w-full sm:w-auto">Ver Catálogo</a>

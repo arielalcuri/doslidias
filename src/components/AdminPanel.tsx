@@ -51,7 +51,7 @@ const AdminPanel: React.FC = () => {
     const { profiles, fetchProfiles, status: authStoreStatus } = useAuthStore();
     const { orders, updateOrderStatus, updateTrackingNumber, deleteOrder, fetchOrders, status: orderStatus, error: orderError } = useOrderStore();
     const { images: galleryImages, addImage: addToGallery, deleteImage: removeFromGallery, fetchGallery, status: galleryStatus } = useGalleryStore();
-    const { totalVisits, visitsToday, visitsLast7Days, visitsByDay, fetchStats, status: statsStatus } = useStatsStore();
+    const { totalVisits, visitsToday, visitsLast7Days, visitsByDay, fetchStats, resetStats, status: statsStatus } = useStatsStore();
     const allUsers = React.useMemo(() => {
         const uniqueCustomers = new Map();
 
@@ -1533,14 +1533,28 @@ const AdminPanel: React.FC = () => {
                                         <h2 className="text-5xl font-black text-slate-900 display-font leading-none tracking-tight">Métricas del Sitio</h2>
                                         <p className="text-slate-400 font-medium text-lg italic">Analiza el impacto y tráfico de tu tienda.</p>
                                     </div>
-                                    <button
-                                        onClick={() => fetchStats()}
-                                        className="btn-primary flex items-center gap-3 h-12 px-6"
-                                        disabled={statsStatus === 'loading'}
-                                    >
-                                        {statsStatus === 'loading' ? <Loader2 className="animate-spin" size={18} /> : <Activity size={18} />}
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Actualizar Datos</span>
-                                    </button>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => {
+                                                if (confirm('¿Estás segura de que quieres resetear todas las métricas? Esta acción no se puede deshacer.')) {
+                                                    resetStats();
+                                                }
+                                            }}
+                                            className="h-12 px-6 rounded-2xl border-2 border-red-50 text-red-400 hover:bg-red-50 hover:text-red-500 transition-all flex items-center gap-3"
+                                            disabled={statsStatus === 'loading'}
+                                        >
+                                            <Trash2 size={18} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Resetear Métricas</span>
+                                        </button>
+                                        <button
+                                            onClick={() => fetchStats()}
+                                            className="btn-primary flex items-center gap-3 h-12 px-6"
+                                            disabled={statsStatus === 'loading'}
+                                        >
+                                            {statsStatus === 'loading' ? <Loader2 className="animate-spin" size={18} /> : <Activity size={18} />}
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Actualizar Datos</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

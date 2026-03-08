@@ -9,6 +9,7 @@ interface StatsStore {
     status: 'idle' | 'loading' | 'error';
     trackVisit: (path: string, isAdmin?: boolean) => Promise<void>;
     fetchStats: () => Promise<void>;
+    resetStats: () => Promise<void>;
 }
 
 export const useStatsStore = create<StatsStore>((set) => ({
@@ -86,6 +87,30 @@ export const useStatsStore = create<StatsStore>((set) => ({
             });
         } catch (err) {
             console.error('Error fetching stats:', err);
+            set({ status: 'error' });
+        }
+    },
+
+    resetStats: async () => {
+        set({ status: 'loading' });
+        try {
+            // Eliminar todas las vistas que no son de admin
+            const { error } = await supabase
+                .from('page_views')
+                .delete()
+                .eq('is_admin', false);
+
+            if (error) throw error;
+
+            set({
+                totalVisits: 0,
+                visitsToday: 0,
+                visitsLast7Days: 0,
+                visitsByDay: [],
+                status: 'idle'
+            });
+        } catch (err) {
+            console.error('Error resetting stats:', err);
             set({ status: 'error' });
         }
     }

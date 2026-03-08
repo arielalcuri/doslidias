@@ -68,7 +68,7 @@ const AdminPanel: React.FC = () => {
                     email: order.customerEmail,
                     docType: 'DNI',
                     docNumber: order.customerDNI || 'S/D',
-                    birthDate: order.date
+                    birthDate: undefined // Un pedido de invitado no tiene fecha de nacimiento
                 });
             }
         });
@@ -1578,7 +1578,9 @@ const AdminPanel: React.FC = () => {
                                                                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">{customer.docType} {customer.docNumber}</p>
                                                                 </td>
                                                                 <td className="text-slate-400 font-bold text-sm">
-                                                                    {new Date(customer.birthDate).toLocaleDateString('es-AR')}
+                                                                    {customer.birthDate && !customer.birthDate.includes('T')
+                                                                        ? customer.birthDate.split('-').reverse().join('/')
+                                                                        : '-'}
                                                                 </td>
                                                                 <td className="text-right">
                                                                     <div className="flex flex-col items-end">

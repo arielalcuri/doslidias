@@ -8,7 +8,7 @@ const MusicPlayer: React.FC = () => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Volvemos a la fuente confiable (SoundHelix) pero con una pista súper sutil
-    const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+    const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3";
 
     useEffect(() => {
         if (audioRef.current) {

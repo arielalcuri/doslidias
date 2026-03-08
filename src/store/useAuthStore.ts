@@ -72,6 +72,7 @@ export const useAuthStore = create<AuthStore>()(
 
                     if (error) throw error;
 
+                    console.log(`Fetched ${data?.length || 0} profiles from Supabase.`);
                     set({
                         profiles: (data || []).map(p => ({
                             id: p.id,

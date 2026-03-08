@@ -64,15 +64,16 @@ const AdminPanel: React.FC = () => {
 
         // 2. Complementar con datos de pedidos (para compras de invitados o histórico)
         orders.forEach(order => {
-            if (!uniqueCustomers.has(order.customerEmail)) {
-                uniqueCustomers.set(order.customerEmail, {
+            const email = order.customerEmail;
+            if (email && !uniqueCustomers.has(email)) {
+                uniqueCustomers.set(email, {
                     id: order.id.replace('ORD-', 'CUST-'),
-                    name: order.customerName,
-                    lastName: order.customerLastName || '',
-                    email: order.customerEmail,
+                    name: order.customerName || 'Cliente',
+                    lastName: order.customerLastName || 'Invitado',
+                    email: email,
                     docType: 'DNI',
                     docNumber: order.customerDNI || 'S/D',
-                    birthDate: undefined // Un pedido de invitado no tiene fecha de nacimiento
+                    birthDate: undefined
                 });
             }
         });
@@ -1684,12 +1685,13 @@ const AdminPanel: React.FC = () => {
                                                 </tr>
                                             ) : (
                                                 allUsers
-                                                    .filter((u: any) =>
-                                                        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                        u.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                        u.docNumber.includes(searchQuery)
-                                                    )
+                                                    .filter((u: any) => {
+                                                        const nameMatch = (u.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+                                                        const lastNameMatch = (u.lastName || '').toLowerCase().includes(searchQuery.toLowerCase());
+                                                        const emailMatch = (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+                                                        const docMatch = (u.docNumber || '').includes(searchQuery);
+                                                        return nameMatch || lastNameMatch || emailMatch || docMatch;
+                                                    })
                                                     .map((customer: any) => {
                                                         const customerOrders = orders.filter(o => o.customerEmail === customer.email);
                                                         return (
@@ -1697,10 +1699,12 @@ const AdminPanel: React.FC = () => {
                                                                 <td>
                                                                     <div className="flex items-center gap-4">
                                                                         <div className="w-12 h-12 bg-primary/5 rounded-[16px] flex items-center justify-center text-primary font-black text-xl">
-                                                                            {customer.name[0]}{customer.lastName[0]}
+                                                                            {(customer.name?.[0] || '?')}{(customer.lastName?.[0] || '')}
                                                                         </div>
                                                                         <div>
-                                                                            <p className="font-extrabold text-slate-800 text-lg leading-none">{customer.name} {customer.lastName}</p>
+                                                                            <p className="font-extrabold text-slate-800 text-lg leading-none">
+                                                                                {customer.name || 'Sin Nombre'} {customer.lastName || ''}
+                                                                            </p>
                                                                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">ID: {customer.id}</p>
                                                                         </div>
                                                                     </div>

@@ -103,7 +103,8 @@ const AdminPanel: React.FC = () => {
     const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
-    const [pickingFor, setPickingFor] = useState<'hero' | 'product'>('hero');
+    const [pickingFor, setPickingFor] = useState<'hero' | 'product' | 'additional'>('hero');
+    const [pickingIndex, setPickingIndex] = useState<number | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Product, 'id'>>({
@@ -592,36 +593,60 @@ const AdminPanel: React.FC = () => {
                                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fotos Adicionales</span>
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => setFormData({ ...formData, images: [...(formData.images || []), ''] })}
+                                                                    onClick={() => {
+                                                                        setPickingFor('additional');
+                                                                        setPickingIndex(null); // Adding new
+                                                                        setIsGalleryPickerOpen(true);
+                                                                    }}
                                                                     className="text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-1"
                                                                 >
-                                                                    <Plus size={14} /> Agregar Foto
+                                                                    <Plus size={14} /> Agregar de Galería
                                                                 </button>
                                                             </div>
-                                                            {(formData.images || []).map((img, idx) => (
-                                                                <div key={idx} className="flex gap-2">
-                                                                    <input
-                                                                        className="admin-input text-xs font-mono flex-1"
-                                                                        placeholder="URL de imagen adicional..."
-                                                                        value={img}
-                                                                        onChange={e => {
-                                                                            const imgs = [...(formData.images || [])];
-                                                                            imgs[idx] = e.target.value;
-                                                                            setFormData({ ...formData, images: imgs });
-                                                                        }}
-                                                                    />
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            const imgs = (formData.images || []).filter((_, i) => i !== idx);
-                                                                            setFormData({ ...formData, images: imgs });
-                                                                        }}
-                                                                        className="p-3 text-red-400 hover:bg-red-50 rounded-xl"
-                                                                    >
-                                                                        <Trash2 size={16} />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
+
+                                                            <div className="grid grid-cols-2 gap-3 pb-2 max-h-[160px] overflow-y-auto scrollbar-thin px-1">
+                                                                {(formData.images || []).map((img, idx) => (
+                                                                    <div key={idx} className="group relative aspect-video rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                                                                        {img ? (
+                                                                            <img src={img} className="w-full h-full object-cover" alt="" />
+                                                                        ) : (
+                                                                            <div className="w-full h-full flex items-center justify-center text-slate-200">
+                                                                                <ImageIcon size={20} />
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => {
+                                                                                    setPickingFor('additional');
+                                                                                    setPickingIndex(idx);
+                                                                                    setIsGalleryPickerOpen(true);
+                                                                                }}
+                                                                                className="p-1.5 bg-white text-slate-900 rounded-lg hover:scale-110 transition-all"
+                                                                                title="Cambiar imagen"
+                                                                            >
+                                                                                <ImageIcon size={14} />
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => {
+                                                                                    const imgs = (formData.images || []).filter((_, i) => i !== idx);
+                                                                                    setFormData({ ...formData, images: imgs });
+                                                                                }}
+                                                                                className="p-1.5 bg-red-500 text-white rounded-lg hover:scale-110 transition-all"
+                                                                                title="Eliminar"
+                                                                            >
+                                                                                <Trash2 size={14} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                                {(!formData.images || formData.images.length === 0) && (
+                                                                    <div className="col-span-2 py-8 border-2 border-dashed border-slate-100 rounded-2xl flex items-center justify-center">
+                                                                        <p className="text-[10px] font-black text-slate-200 uppercase tracking-widest">Sin fotos adicionales</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </FormGroup>
@@ -1691,6 +1716,19 @@ const AdminPanel: React.FC = () => {
                                                         setFormData({
                                                             ...formData,
                                                             image: image.url
+                                                        });
+                                                    } else if (pickingFor === 'additional') {
+                                                        const currentImages = [...(formData.images || [])];
+                                                        if (pickingIndex !== null) {
+                                                            // Replacement
+                                                            currentImages[pickingIndex] = image.url;
+                                                        } else {
+                                                            // New addition
+                                                            currentImages.push(image.url);
+                                                        }
+                                                        setFormData({
+                                                            ...formData,
+                                                            images: currentImages
                                                         });
                                                     }
                                                     setIsGalleryPickerOpen(false);

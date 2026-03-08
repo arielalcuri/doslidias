@@ -30,7 +30,10 @@ import {
     BarChart3,
     TrendingUp,
     Calendar,
-    Activity
+    Activity,
+    ChevronLeft,
+    ChevronRight,
+    ArrowUpNarrowWide
 } from 'lucide-react';
 import { useProductStore, Product } from '../store/useProductStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -1165,6 +1168,19 @@ const AdminPanel: React.FC = () => {
                                             </button>
                                             <button
                                                 onClick={() => {
+                                                    const sorted = [...(tempSettings.potNumbers || [])].sort((a, b) => {
+                                                        const numA = parseInt(a.replace(/\D/g, '')) || 0;
+                                                        const numB = parseInt(b.replace(/\D/g, '')) || 0;
+                                                        return numA - numB;
+                                                    });
+                                                    setTempSettings({ ...tempSettings, potNumbers: sorted });
+                                                }}
+                                                className="btn-secondary py-3 text-[10px] bg-slate-100 border-none shadow-none hover:bg-slate-200"
+                                            >
+                                                <ArrowUpNarrowWide size={16} /> Ordenar por Número
+                                            </button>
+                                            <button
+                                                onClick={() => {
                                                     const num = prompt('Nuevo Número (ej: N° 32):');
                                                     if (num) setTempSettings({ ...tempSettings, potNumbers: [...(tempSettings.potNumbers || []), num] });
                                                 }}
@@ -1178,13 +1194,43 @@ const AdminPanel: React.FC = () => {
                                     <div className="flex flex-wrap gap-4">
                                         {tempSettings.potNumbers?.map((num, i) => (
                                             <div key={i} className="group relative px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4 hover:bg-white hover:shadow-md transition-all">
+                                                <div className="flex flex-col gap-1 -ml-2 mr-1 opacity-0 group-hover:opacity-100 transition-all">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (i > 0) {
+                                                                const newNums = [...tempSettings.potNumbers];
+                                                                [newNums[i], newNums[i - 1]] = [newNums[i - 1], newNums[i]];
+                                                                setTempSettings({ ...tempSettings, potNumbers: newNums });
+                                                            }
+                                                        }}
+                                                        className="p-0.5 text-slate-300 hover:text-primary transition-colors disabled:opacity-0"
+                                                        disabled={i === 0}
+                                                        title="Mover a la izquierda"
+                                                    >
+                                                        <ChevronLeft size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (i < tempSettings.potNumbers.length - 1) {
+                                                                const newNums = [...tempSettings.potNumbers];
+                                                                [newNums[i], newNums[i + 1]] = [newNums[i + 1], newNums[i]];
+                                                                setTempSettings({ ...tempSettings, potNumbers: newNums });
+                                                            }
+                                                        }}
+                                                        className="p-0.5 text-slate-300 hover:text-primary transition-colors disabled:opacity-0"
+                                                        disabled={i === tempSettings.potNumbers.length - 1}
+                                                        title="Mover a la derecha"
+                                                    >
+                                                        <ChevronRight size={14} />
+                                                    </button>
+                                                </div>
                                                 <span className="font-black text-slate-700">{num}</span>
                                                 <button
                                                     onClick={() => {
                                                         const newNums = tempSettings.potNumbers.filter((_, idx) => idx !== i);
                                                         setTempSettings({ ...tempSettings, potNumbers: newNums });
                                                     }}
-                                                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"
+                                                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all ml-auto"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

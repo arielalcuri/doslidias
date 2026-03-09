@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         >
             <div
                 onClick={() => setIsZoomOpen(true)}
-                className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-inner bg-slate-50 relative group/carousel cursor-zoom-in"
+                className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-inner bg-slate-50 group/carousel cursor-zoom-in"
             >
                 <AnimatePresence mode="wait">
                     <motion.img
@@ -75,17 +75,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                             ))}
                         </div>
                         {/* Arrows */}
-                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between z-20 pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-all duration-300">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }}
-                                className="w-10 h-10 bg-white/90 backdrop-blur-md text-slate-900 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all pointer-events-auto"
+                                className="w-10 h-10 bg-white shadow-xl text-slate-900 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all pointer-events-auto"
                                 title="Anterior"
                             >
                                 <ChevronLeft size={20} />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }}
-                                className="w-10 h-10 bg-white/90 backdrop-blur-md text-slate-900 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all pointer-events-auto"
+                                className="w-10 h-10 bg-white shadow-xl text-slate-900 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all pointer-events-auto"
                                 title="Siguiente"
                             >
                                 <ChevronRight size={20} />

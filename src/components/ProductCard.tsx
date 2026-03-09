@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, ShoppingCart, ChevronLeft, ChevronRight, X, Maximize2 } from 'lucide-react';
 import { Product } from '../store/useProductStore';
 
 interface ProductCardProps {
@@ -11,6 +11,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     const [selectedVariant, setSelectedVariant] = React.useState<{ size: string, price: number } | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+    const [isZoomOpen, setIsZoomOpen] = React.useState(false);
 
     const allImages = [product.image, ...(product.images || [])].filter(Boolean);
     const validVariants = (product.variants || []).filter(v => v && typeof v.price === 'number');
@@ -41,7 +42,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             viewport={{ once: true }}
             className="card-product flex flex-col h-full bg-white rounded-[40px] p-5 shadow-premium-soft shadow-premium-soft-hover border border-slate-50 group transition-all duration-700 hover:-translate-y-2"
         >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-inner bg-slate-50 relative group/carousel">
+            <div
+                onClick={() => setIsZoomOpen(true)}
+                className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-inner bg-slate-50 relative group/carousel cursor-zoom-in"
+            >
                 <AnimatePresence mode="wait">
                     <motion.img
                         key={currentImageIndex}
@@ -54,6 +58,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                         className="w-full h-full object-cover"
                     />
                 </AnimatePresence>
+
+                <div className="absolute top-4 right-4 z-20 opacity-0 group-hover/carousel:opacity-100 transition-opacity bg-white/20 backdrop-blur-md p-2 rounded-xl text-white pointer-events-none hidden md:block">
+                    <Maximize2 size={16} />
+                </div>
 
                 {allImages.length > 1 && (
                     <>
@@ -88,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500 pointer-events-none" />
                 <button
-                    onClick={handleAdd}
+                    onClick={(e) => { e.stopPropagation(); handleAdd(); }}
                     className="absolute bottom-6 right-6 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl text-primary scale-0 group-hover:scale-100 transition-all duration-300 hover:bg-primary hover:text-white hover:rotate-90 z-20"
                 >
                     <Plus size={28} />
@@ -160,6 +168,71 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Modal de Zoom */}
+            <AnimatePresence>
+                {isZoomOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl"
+                        onClick={() => setIsZoomOpen(false)}
+                    >
+                        <motion.button
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            className="absolute top-6 right-6 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full z-[1001] transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setIsZoomOpen(false); }}
+                        >
+                            <X size={24} />
+                        </motion.button>
+
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative w-full max-w-4xl max-h-[90vh] flex items-center justify-center overflow-hidden rounded-[40px]"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img
+                                src={allImages[currentImageIndex]}
+                                alt={product.name}
+                                className="w-full h-full object-contain shadow-2xl"
+                            />
+
+                            {allImages.length > 1 && (
+                                <>
+                                    <div className="absolute inset-x-4 md:inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-[1002]">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }}
+                                            className="w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95"
+                                        >
+                                            <ChevronLeft size={24} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }}
+                                            className="w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95"
+                                        >
+                                            <ChevronRight size={24} />
+                                        </button>
+                                    </div>
+                                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-[1002] bg-white/10 backdrop-blur-md px-4 py-3 rounded-full">
+                                        {allImages.map((_, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => setCurrentImageIndex(idx)}
+                                                className={`h-1.5 rounded-full transition-all ${currentImageIndex === idx ? 'bg-white w-6' : 'bg-white/30 w-1.5'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };

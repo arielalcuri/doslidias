@@ -26,20 +26,22 @@ export default async function handler(req, res) {
             const origin = `${protocol}://${host}`;
 
             const link = `${origin}/?p=${p.id}`;
-            // Clean description for CSV
-            const desc = (p.description || '').replace(/[,\n\r]/g, ' ').trim();
+            const imageLink = p.image || '';
+            const desc = (p.description || p.name || '').replace(/"/g, '""').replace(/[\b\f\n\r\t]/g, ' ').trim();
+
+            const quote = (val) => `"${(val || '').toString().replace(/"/g, '""')}"`;
 
             return [
-                p.id,
-                `"${(p.name || '').replace(/"/g, '""')}"`,
-                `"${(desc || p.name || '').replace(/"/g, '""')}"`,
-                'in stock',
-                'new',
-                `${priceVal} ARS`,
-                link,
-                p.image,
-                'Dos Lidias',
-                'Home & Garden > Kitchen & Dining > Tableware > Planters'
+                quote(p.id),
+                quote(p.name),
+                quote(desc),
+                quote('in stock'),
+                quote('new'),
+                quote(`${priceVal} ARS`),
+                quote(link),
+                quote(imageLink),
+                quote('Dos Lidias'),
+                quote('Home & Garden > Kitchen & Dining > Tableware > Planters')
             ].join(',');
         });
 

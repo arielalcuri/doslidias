@@ -28,10 +28,9 @@ export const useStatsStore = create<StatsStore>((set) => ({
                 is_admin: isAdmin
             });
             if (error) {
-                console.error('❌ Error de Supabase al trackear visita:', error.message, error.details, error.hint);
+                console.error('❌ Error de Supabase al trackear visita:', error.message);
                 return;
             }
-            console.log(`✅ Visita registrada: ${path} (Admin: ${isAdmin})`);
         } catch (err) {
             console.error('❌ Error inesperado al trackear:', err);
         }
@@ -41,7 +40,6 @@ export const useStatsStore = create<StatsStore>((set) => ({
         set({ status: 'loading' });
         try {
             const { settings } = useSettingsStore.getState();
-            console.log('Fetching stats using reset date:', settings.statsResetDate);
 
             // Get all non-admin visits
             // Use 'or' to handle is_admin explicitly being false or null
@@ -96,6 +94,7 @@ export const useStatsStore = create<StatsStore>((set) => ({
                 .sort((a, b) => a.date.localeCompare(b.date));
 
             console.log(`Fetched ${total} valid visits out of ${data?.length || 0} raw records.`);
+            console.info('Chart Data (Last 7 days):', visitsByDay);
 
             set({
                 totalVisits: total,

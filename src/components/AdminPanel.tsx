@@ -1609,8 +1609,8 @@ const AdminPanel: React.FC = () => {
                                                             </div>
                                                             <motion.div
                                                                 initial={{ height: 0 }}
-                                                                animate={{ height: `${height}%` }}
-                                                                className={`w-full rounded-2xl shadow-lg transition-all duration-500 cursor-help ${isToday ? 'bg-primary shadow-primary/30' : 'bg-slate-200 group-hover:bg-slate-300'}`}
+                                                                animate={{ height: `calc(${height}% + 4px)` }}
+                                                                className={`w-full rounded-full transition-all duration-500 cursor-help relative ${isToday ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-slate-200 group-hover:bg-slate-300 border border-slate-300/50'}`}
                                                             />
                                                         </div>
                                                         <span className={`text-[9px] font-black uppercase tracking-widest ${isToday ? 'text-primary' : 'text-slate-400'}`}>

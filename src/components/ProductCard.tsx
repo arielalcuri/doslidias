@@ -193,32 +193,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="relative w-full max-w-4xl max-h-[90vh] flex items-center justify-center overflow-hidden rounded-[40px]"
+                            className="relative w-[95vw] h-[90vh] flex items-center justify-center"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <img
                                 src={allImages[currentImageIndex]}
                                 alt={product.name}
-                                className="w-full h-full object-contain shadow-2xl"
+                                className="max-w-full max-h-full object-contain shadow-2xl rounded-2xl md:rounded-[32px]"
                             />
 
                             {allImages.length > 1 && (
                                 <>
-                                    <div className="absolute inset-x-4 md:inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-[1002]">
+                                    <div className="absolute inset-x-0 md:inset-x-[-80px] top-1/2 -translate-y-1/2 flex justify-between z-[1002] pointer-events-none">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }}
-                                            className="w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95"
+                                            className="w-14 h-14 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95 pointer-events-auto"
                                         >
-                                            <ChevronLeft size={24} />
+                                            <ChevronLeft size={32} />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }}
-                                            className="w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95"
+                                            className="w-14 h-14 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95 pointer-events-auto"
                                         >
-                                            <ChevronRight size={24} />
+                                            <ChevronRight size={32} />
                                         </button>
                                     </div>
-                                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-[1002] bg-white/10 backdrop-blur-md px-4 py-3 rounded-full">
+                                    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-2 z-[1002] bg-white/10 backdrop-blur-md px-4 py-3 rounded-full">
                                         {allImages.map((_, idx) => (
                                             <button
                                                 key={idx}

@@ -1602,9 +1602,9 @@ const AdminPanel: React.FC = () => {
                                                 const isToday = day.date === new Date().toISOString().split('T')[0];
 
                                                 return (
-                                                    <div key={idx} className="flex-1 flex flex-col items-center gap-4 group">
-                                                        <div className="w-full relative">
-                                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-black opacity-0 group-hover:opacity-100 transition-all shadow-xl pointer-events-none z-10">
+                                                    <div key={idx} className="flex-1 h-full flex flex-col items-center gap-4 group">
+                                                        <div className="flex-1 w-full relative flex items-end">
+                                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-black opacity-0 group-hover:opacity-100 transition-all shadow-xl pointer-events-none z-10 whitespace-nowrap">
                                                                 {day.count} visitas
                                                             </div>
                                                             <motion.div

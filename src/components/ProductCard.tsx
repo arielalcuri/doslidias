@@ -204,21 +204,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
                             {allImages.length > 1 && (
                                 <>
-                                    <div className="absolute inset-x-0 md:inset-x-[-80px] top-1/2 -translate-y-1/2 flex justify-between z-[1002] pointer-events-none">
+                                    <div className="absolute inset-x-4 md:inset-x-12 top-1/2 -translate-y-1/2 flex justify-between z-[1002] pointer-events-none">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length); }}
-                                            className="w-14 h-14 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95 pointer-events-auto"
+                                            className="w-16 h-16 bg-white shadow-2xl text-slate-900 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all pointer-events-auto"
                                         >
                                             <ChevronLeft size={32} />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % allImages.length); }}
-                                            className="w-14 h-14 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95 pointer-events-auto"
+                                            className="w-16 h-16 bg-white shadow-2xl text-slate-900 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all pointer-events-auto"
                                         >
                                             <ChevronRight size={32} />
                                         </button>
                                     </div>
-                                    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-2 z-[1002] bg-white/10 backdrop-blur-md px-4 py-3 rounded-full">
+                                    <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-[1002] bg-white/20 backdrop-blur-md px-4 py-3 rounded-full">
                                         {allImages.map((_, idx) => (
                                             <button
                                                 key={idx}

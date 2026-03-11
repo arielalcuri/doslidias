@@ -40,7 +40,7 @@ const DEFAULT_SETTINGS: Settings = {
         'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?q=80&w=2070&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?q=80&w=2070&auto=format&fit=crop'
     ],
-    whatsapp: '54116543210',
+    whatsapp: '5491140932721',
     instagram: 'doslidias.arte',
     storeSubtitle: 'Macetas y objetos de autor. Envíos a todo el país.',
     isVacationMode: false,
